@@ -12,19 +12,7 @@ public class LexicalAnalyzer {
     ArrayList<Symbol> symbolList = new ArrayList<>();
     HashMap<String, String> reservedWords = new HashMap<>(1000000);
 
-
-    class Symbol {
-        String value;
-        String type;
-
-        public Symbol(String value, String type) {
-            this.value = value;
-            this.type = type;
-        }
-
-    }
-
-    public void analyse() throws IOException {
+    public ArrayList<Symbol> analyse() throws IOException {
         init();
         File file = new File("testfile.txt");
         InputStreamReader read = new InputStreamReader(new FileInputStream(file));
@@ -74,8 +62,7 @@ public class LexicalAnalyzer {
                     do {
                         wordBuilder.append(c);
                         c = line.charAt(++i);                            //TODO restrict of NormalChar
-                    } while (c != '"');         //TODO no matching "
-                    // 之前对i的限制没有 re了一个点 但是正常情况下，一行最后肯定有“的吧？
+                    } while (c != '"');                                  //TODO no matching "
                     wordBuilder.append(c);
                     String formatString = wordBuilder.toString();
                     addToList(formatString, "STRCON");
@@ -179,7 +166,8 @@ public class LexicalAnalyzer {
             lineNum++;
         }
         read.close();
-        print();
+        // print();
+        return symbolList;
     }
 
     public void init() {
