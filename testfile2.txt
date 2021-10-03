@@ -1,0 +1,40 @@
+
+
+
+int x[3][2] = {{10, 20},{30, 40},{50, 60}};
+
+int test(int s) {
+    int x[3][2] = {{100, 200}, {300, 400}, {500, 600}};
+    printf("%d\n", x[0][0] * s);
+    return x[1][1];
+}
+
+void test2(int t[]) {
+    printf("%d\n", t[1] * x[2][1]);
+}
+
+int main() {
+    const int abc = 1;
+    const int abcd[5] = {1,2,3,4,5};
+    printf("19373061\n");
+
+    int tmp[3][2] = {{1, 2},{3, 4},{5, 6}};
+
+    printf("%d\n", test(tmp[1][1]));
+
+    int tmp2[6];
+    int i;
+    i = 0;
+    while (i < 6) {
+        tmp2[i] = 100 - i;
+        i = i + 1;
+    }
+    i = 0;
+    while (i < 6) {
+        printf("%d\n", tmp2[i] / 2);
+        i = i + 1;
+    }
+    test2(tmp2);
+    return 0;
+}
+

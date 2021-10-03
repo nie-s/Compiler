@@ -1,0 +1,59 @@
+int N, num[134217728];
+
+void test(int a, int b){
+    if (a<b)
+        while (a>b)
+            continue;
+    else
+        return;
+
+    if (a!=b) {  }
+}
+
+int main() {
+    const int abc = 1, abcd = 2;
+    int a = 3, b = 4;
+    int c = 1;
+    c = a +b;
+    c = -b;
+    c = (a+b);
+    c = +b;
+    printf("19373061\n");
+
+    //输入数据 非递归最大子序列
+    N = getint();
+    int i;
+    i = 1;
+    while (i <= N) {
+        num[i] = getint();
+        i = i + 1;
+    }
+
+    num[0] = 0;
+    int ans;
+    ans = num[1];
+    i = 1;
+    while (i <= N) {
+        if (num[i - 1] > 0) {
+            num[i] = num[i] + num[i - 1];
+        }
+        if (num[i] > ans) {
+            ans = num[i];
+        }
+        printf("%d\n", num[i]);
+        i = i + 1;
+    }
+
+    if (a>b)
+        if (a<c)
+            a = 1;
+    else
+        while (a>b)
+            break;
+
+    printf("ans: %d\n", ans);
+
+    return 0;
+}
+
+
