@@ -1,29 +1,26 @@
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LexicalAnalyzer {
-    ArrayList<Symbol> symbolList = new ArrayList<>();
-    HashMap<String, String> reservedWords = new HashMap<>(1000000);
+    ArrayList<Word> symbolList = new ArrayList<>();
+    HashMap<String, String> reservedWords = new HashMap<>();
+    int lineNum = 0;
+    int i = 0;
+    String line = null;
+    boolean findQuo = false;
 
-    public ArrayList<Symbol> analyse() throws IOException {
+    public LexicalAnalyzer() {
         init();
-        File file = new File("testfile.txt");
-        InputStreamReader read = new InputStreamReader(new FileInputStream(file));
-        BufferedReader bufferedReader = new BufferedReader(read);
-        String line = null;
-        int lineNum = 0;
-        boolean findQuo = false;
-        while ((line = bufferedReader.readLine()) != null) {
-            System.out.println(line);
+    }
+
+    public void analyse(ArrayList<String> lines) throws IOException {
+        while (lineNum < lines.size()) {
+            //TODO error if out of index
+            line = lines.get(lineNum);
             lineNum++;
-            int i = 0;
             for (; i < line.length(); i++) {
                 char c = line.charAt(i);
                 if (findQuo) {
@@ -32,142 +29,159 @@ public class LexicalAnalyzer {
                         i++;
                     }
                 } else if (isNonDigit(c)) {
-                    StringBuilder wordBuilder = new StringBuilder();
-                    while (isNonDigit(c) || Character.isDigit(c)) {
-                        wordBuilder.append(c);
-                        i++;
-                        if (i < line.length()) c = line.charAt(i);
-                        else break;
-                    }
-                    i--;
-                    String word = wordBuilder.toString();
-                    addToList(word, reservedWords.getOrDefault(word, "IDENFR"));
+                    getIdent();
                 } else if (Character.isDigit(c)) {    //TODO error if start with 0
-                    StringBuilder wordBuilder = new StringBuilder();
-                    while (Character.isDigit(c)) {
-                        wordBuilder.append(c);
-                        i++;
-                        if (i < line.length()) c = line.charAt(i);
-                        else break;
-                    }
-                    while (i < line.length() && !Character.isSpaceChar(line.charAt(i))) {
-                        if (!isNonDigit(line.charAt(i)) && !Character.isDigit(line.charAt(i))) break;
-                        i++;
-                    }
-                    i--;
-                    String word = wordBuilder.toString();
-                    addToList(word, "INTCON");
+                    getInt();
                 } else if (c == '"') {
-                    StringBuilder wordBuilder = new StringBuilder();
-                    do {
-                        wordBuilder.append(c);
-                        c = line.charAt(++i);                            //TODO restrict of NormalChar
-                    } while (c != '"');                                  //TODO no matching "
-                    wordBuilder.append(c);
-                    String formatString = wordBuilder.toString();
-                    addToList(formatString, "STRCON");
+                    getString();
                 } else if (Character.isSpaceChar(c)) {
                     continue;
                 } else {
-                    switch (c) {
-                        case '!':
-                            if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
-                                i++;
-                                addToList("!=", "NEQ");
-                            } else {
-                                addToList("!", "NOT");
-                            }
-                            break;
-                        case '&':
-                            i++;   //TODO error if not followed with '&'
-                            addToList("&&", "AND");
-                            break;
-                        case '|':
-                            i++;   //TODO error if not followed with '|'
-                            addToList("||", "OR");
-                            break;
-                        case '+':
-                            addToList("+", "PLUS");
-                            break;
-                        case '-':
-                            addToList("-", "MINU");
-                            break;
-                        case '*':
-                            addToList("*", "MULT");
-                            break;
-                        case '/':
-                            if (i < line.length() - 1 && line.charAt(i + 1) == '/') {
-                                i = line.length();
-                            } else if (i < line.length() - 1 && line.charAt(i + 1) == '*') {
-                                i++;
-                                findQuo = true;
-                            } else {
-                                addToList("/", "DIV");
-                            }
-                            break;
-                        case '%':
-                            addToList("%", "MOD");
-                            break;
-                        case '<':
-                            if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
-                                i++;
-                                addToList("<=", "LEQ");
-                            } else {
-                                addToList("<", "LSS");
-                            }
-                            break;
-                        case '>':
-                            if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
-                                i++;
-                                addToList(">=", "GEQ");
-                            } else {
-                                addToList(">", "GRE");
-                            }
-                            break;
-                        case '=':
-                            if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
-                                i++;
-                                addToList("==", "EQL");
-                            } else {
-                                addToList("=", "ASSIGN");
-                            }
-                            break;
-                        case ';':
-                            addToList(";", "SEMICN");
-                            break;
-                        case ',':
-                            addToList(",", "COMMA");
-                            break;
-                        case '(':
-                            addToList("(", "LPARENT");
-                            break;
-                        case ')':
-                            addToList(")", "RPARENT");
-                            break;
-                        case '[':
-                            addToList("[", "LBRACK");
-                            break;
-                        case ']':
-                            addToList("]", "RBRACK");
-                            break;
-                        case '{':
-                            addToList("{", "LBRACE");
-                            break;
-                        case '}':
-                            addToList("}", "RBRACE");
-                            break;
-                        default:
-                            //TODO error;
-
-
-                    }
+                    getNote();
                 }
             }
-            lineNum++;
         }
-        read.close();
-        // print();
-        return symbolList;
+        print();
+    }
+
+    public void getIdent() {
+        char c = line.charAt(i);
+        StringBuilder wordBuilder = new StringBuilder();
+        while (isNonDigit(c) || Character.isDigit(c)) {
+            wordBuilder.append(c);
+            i++;
+            if (i < line.length()) c = line.charAt(i);
+            else break;
+        }
+        i--;
+        String word = wordBuilder.toString();
+        addToList(word, reservedWords.getOrDefault(word, "IDENFR"));
+    }
+
+    public void getInt() {
+        char c = line.charAt(i);
+        StringBuilder wordBuilder = new StringBuilder();
+        while (Character.isDigit(c)) {
+            wordBuilder.append(c);
+            i++;
+            if (i < line.length()) c = line.charAt(i);
+            else break;
+        }
+        while (i < line.length() && !Character.isSpaceChar(line.charAt(i))) {
+            if (!isNonDigit(line.charAt(i)) && !Character.isDigit(line.charAt(i))) break;
+            i++;
+        }
+        i--;
+        String word = wordBuilder.toString();
+        addToList(word, "INTCON");
+    }
+
+    public void getString() {
+        char c = line.charAt(i);
+        StringBuilder wordBuilder = new StringBuilder();
+        do {
+            wordBuilder.append(c);
+            c = line.charAt(++i);                            //TODO restrict of NormalChar
+        } while (c != '"');                                  //TODO no matching "
+        wordBuilder.append(c);
+        String formatString = wordBuilder.toString();
+        addToList(formatString, "STRCON");
+    }
+
+    public void getNote() {
+        char c = line.charAt(i);
+        switch (c) {
+            case '!':
+                if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
+                    i++;
+                    addToList("!=", "NEQ");
+                } else {
+                    addToList("!", "NOT");
+                }
+                break;
+            case '&':
+                i++;   //TODO error if not followed with '&'
+                addToList("&&", "AND");
+                break;
+            case '|':
+                i++;   //TODO error if not followed with '|'
+                addToList("||", "OR");
+                break;
+            case '+':
+                addToList("+", "PLUS");
+                break;
+            case '-':
+                addToList("-", "MINU");
+                break;
+            case '*':
+                addToList("*", "MULT");
+                break;
+            case '/':
+                if (i < line.length() - 1 && line.charAt(i + 1) == '/') {
+                    i = line.length();
+                } else if (i < line.length() - 1 && line.charAt(i + 1) == '*') {
+                    i++;
+                    findQuo = true;
+                } else {
+                    addToList("/", "DIV");
+                }
+                break;
+            case '%':
+                addToList("%", "MOD");
+                break;
+            case '<':
+                if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
+                    i++;
+                    addToList("<=", "LEQ");
+                } else {
+                    addToList("<", "LSS");
+                }
+                break;
+            case '>':
+                if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
+                    i++;
+                    addToList(">=", "GEQ");
+                } else {
+                    addToList(">", "GRE");
+                }
+                break;
+            case '=':
+                if (i < line.length() - 1 && line.charAt(i + 1) == '=') {
+                    i++;
+                    addToList("==", "EQL");
+                } else {
+                    addToList("=", "ASSIGN");
+                }
+                break;
+            case ';':
+                addToList(";", "SEMICN");
+                break;
+            case ',':
+                addToList(",", "COMMA");
+                break;
+            case '(':
+                addToList("(", "LPARENT");
+                break;
+            case ')':
+                addToList(")", "RPARENT");
+                break;
+            case '[':
+                addToList("[", "LBRACK");
+                break;
+            case ']':
+                addToList("]", "RBRACK");
+                break;
+            case '{':
+                addToList("{", "LBRACE");
+                break;
+            case '}':
+                addToList("}", "RBRACE");
+                break;
+            default:
+                //TODO error;
+                break;
+
+        }
     }
 
     public void init() {
@@ -194,12 +208,13 @@ public class LexicalAnalyzer {
     }
 
     public void addToList(String value, String type) {
-        this.symbolList.add(new Symbol(value, type));
+        Word current = new Word(value, type, lineNum);
+        this.symbolList.add(current);
     }
 
     public void print() throws IOException {
         BufferedWriter out = new BufferedWriter(new FileWriter("output.txt"));
-        for (Symbol symbol : symbolList) {
+        for (Word symbol : symbolList) {
             out.write(symbol.type + " " + symbol.value + "\n");
             //System.out.println(symbol.type + " " + symbol.value);
         }
