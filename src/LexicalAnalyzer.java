@@ -37,6 +37,8 @@ public class LexicalAnalyzer {
                     getString();
                 } else if (Character.isSpaceChar(c)) {
                     continue;
+
+
                 } else {
                     getNote();
                 }
