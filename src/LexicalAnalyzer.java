@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class LexicalAnalyzer {
-    ArrayList<Word> symbolList = new ArrayList<>();
+    ArrayList<Word> wordList = new ArrayList<>();
     HashMap<String, String> reservedWords = new HashMap<>();
     int lineNum = 0;
     int i = 0;
     String line = null;
     boolean findQuo = false;
+    int wordCnt = 0;
+    int index = 0;
 
     public LexicalAnalyzer() {
         init();
@@ -45,6 +47,7 @@ public class LexicalAnalyzer {
             }
         }
         print();
+        wordCnt = wordList.size();
     }
 
     public void getIdent() {
@@ -212,16 +215,32 @@ public class LexicalAnalyzer {
 
     public void addToList(String value, String type) {
         Word current = new Word(value, type, lineNum);
-        this.symbolList.add(current);
+        this.wordList.add(current);
     }
 
     public void print() throws IOException {
         BufferedWriter out = new BufferedWriter(new FileWriter("output.txt"));
-        for (Word symbol : symbolList) {
-            out.write(symbol.type + " " + symbol.value + "\n");
-            //System.out.println(symbol.type + " " + symbol.value);
+        for (Word word : wordList) {
+            out.write(word.type + " " + word.value + "\n");
+            //System.out.println(word.type + " " + word.value);
         }
         out.close();
     }
 
+    public Word getWord() {
+        System.out.println(wordList.get(index).getType());
+        return wordList.get(index++);
+    }
+
+    public boolean checkFunc() {
+        return wordList.get(index + 2).isLparent();
+    }
+
+    public boolean hasWord() {
+        return index < wordCnt;
+    }
+
+    public boolean checkMain() {
+        return wordList.get(index + 1).isMain();
+    }
 }

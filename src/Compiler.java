@@ -9,6 +9,7 @@ public class Compiler {
     public static void main(String[] args) throws IOException {
         ArrayList<String> lines = input();
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer();
+        GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer);
         lexicalAnalyzer.analyse(lines);
 
     }
