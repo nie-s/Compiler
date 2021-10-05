@@ -228,12 +228,11 @@ public class LexicalAnalyzer {
     }
 
     public Word getWord() {
-        System.out.println(wordList.get(index).getType());
         return wordList.get(index++);
     }
 
     public boolean checkFunc() {
-        return wordList.get(index + 2).isLparent();
+        return index + 1 < wordCnt && wordList.get(index + 1).isLparent();
     }
 
     public boolean hasWord() {
@@ -241,6 +240,22 @@ public class LexicalAnalyzer {
     }
 
     public boolean checkMain() {
-        return wordList.get(index + 1).isMain();
+        return index < wordCnt && wordList.get(index).isMain();
+    }
+
+    public boolean checkArray() {
+        return index < wordCnt && wordList.get(index).isLbrack();
+    }
+
+    public boolean checkFuncParam() {
+        return index < wordCnt && wordList.get(index).isLparent();
+    }
+
+    public boolean checkUnaryCal() {
+        return index < wordCnt && wordList.get(index).isUnaryCal();
+    }
+
+    public boolean checkUnaryAdd() {
+        return index < wordCnt && wordList.get(index).isUnaryAdd();
     }
 }

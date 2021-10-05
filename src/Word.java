@@ -172,5 +172,20 @@ public class Word {
         return type.equals("RBRACE");
     }
 
+    public boolean isNumber() {
+        return type.equals("INTCON");
+    }
 
+    public boolean isUnaryOp() {
+        return this.isMinus() || this.isPlus() || this.isNot();
+    }
+
+    public boolean isUnaryCal() {
+        return this.isMult() || this.isDiv() || this.isMod();
+    }
+
+    public boolean isUnaryAdd() {
+        return this.isPlus() || this.isMinus();
+
+    }
 }

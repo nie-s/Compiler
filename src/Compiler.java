@@ -11,6 +11,7 @@ public class Compiler {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer();
         GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer);
         lexicalAnalyzer.analyse(lines);
+        grammarAnalyzer.analyse();
 
     }
 
