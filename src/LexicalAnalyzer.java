@@ -298,4 +298,8 @@ public class LexicalAnalyzer {
         return index < wordCnt && wordList.get(index).isAssign();
     }
 
+    public boolean checkComma() {
+        return index < wordCnt && wordList.get(index).isComma();
+    }
+
 }

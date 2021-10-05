@@ -16,8 +16,8 @@ public class GrammarAnalyzer {
     public void analyse() {
         try {
             out = new BufferedWriter(new FileWriter("output.txt"));
-            GETWORD();
             Program();
+            PRINT("<CompUnit>");
             out.close();
         } catch (MyException e) {
             System.out.println("=======" + e.errorLine + "======" + e.errorCode);
@@ -32,6 +32,7 @@ public class GrammarAnalyzer {
         //{<Decl>}
         while (lexicalAnalyzer.hasWord()) {
             //<ConstDecl>
+            GETWORD();
             if (currentWord.isConst()) {
                 GETWORD();    //const
                 constDeclare();
@@ -44,7 +45,7 @@ public class GrammarAnalyzer {
             } else {
                 break;
             }
-            GETWORD();
+
         }
 
 
@@ -72,7 +73,6 @@ public class GrammarAnalyzer {
                 mainFuncDef();
         } catch (MyException e) {
             System.out.println("=======" + e.errorLine + "======" + e.errorCode);
-
         }
 
     }
@@ -94,8 +94,8 @@ public class GrammarAnalyzer {
         }
     }
 
+    // <VarDecl> ::= <BType> <VarDef> {,<VarDef>} ';'
     public void varDeclare() {
-        // <VarDecl> ::= <BType> <VarDef> {,<VarDef>} ';'
         try {
             do {
                 GETWORD();
@@ -110,10 +110,10 @@ public class GrammarAnalyzer {
         }
     }
 
+    //<FuncDef> ::= <FuncType> <Ident> '(' [<FuncFParams>] ')' <Block>
     public void funcDef() throws MyException {
-        //<FuncDef> ::= <FuncType> <Ident> '(' [<FuncFParams>] ')' <Block>
         String funcType = currentWord.getType();
-
+        PRINT("<FuncType>");
         GETWORD();
         CHECKIDENT();
         GETWORD();
@@ -122,7 +122,9 @@ public class GrammarAnalyzer {
                 GETWORD();
                 GETWORD();
             } else {
+                GETWORD();
                 funcFParams();
+                GETWORD();
                 CHECKRPARENT();
                 GETWORD();
             }
@@ -133,8 +135,8 @@ public class GrammarAnalyzer {
         PRINT("<FuncDef>");
     }
 
+    //<MainFuncDef> ::= 'int' 'main' '(' ')' <Block>
     public void mainFuncDef() throws MyException {
-        //<MainFuncDef> ::= 'int' 'main' '(' ')' <Block>
         GETWORD();
         CHECKLPARENT();
         GETWORD();
@@ -144,18 +146,19 @@ public class GrammarAnalyzer {
         PRINT("<MainFuncDef>");
     }
 
+    //<FuncFParams> ::= <FuncFParam> { ',' <FuncFParam> }
     public void funcFParams() throws MyException {
-        //<FuncFParams> ::= <FuncFParam> { ',' <FuncFParam> }
-        do {
+        funcFParam();
+        while (lexicalAnalyzer.checkComma()) {
+            GETWORD(); //Comma
             GETWORD();
             funcFParam();
-            GETWORD();
-        } while (currentWord.isComma());
+        }
         PRINT("<FuncFParams>");
     }
 
+    //<FuncFParam> ::= <BType> <Ident> ['[' ']' { '[' <ConstExp> ']' }]
     public void funcFParam() throws MyException {
-        //<FuncFParam> ::= <BType> <Ident> ['[' ']' { '[' <ConstExp> ']' }]
         if (!currentWord.isInt()) {
             ERROR(106, currentLine);
         }
@@ -179,8 +182,8 @@ public class GrammarAnalyzer {
         PRINT("<FuncFParam>");
     }
 
+    //<Block> ::= '{' { <BlockItem> } '}'
     public void block() throws MyException {
-        //<Block> ::= '{' { <BlockItem> } '}'
         if (!currentWord.isLbrace()) {
             ERROR(100, currentLine);
         }
@@ -193,9 +196,10 @@ public class GrammarAnalyzer {
         PRINT("<Block>");
     }
 
+    //<BlockItem> ::= <Decl> | <Stmt>
     public void blockItem() throws MyException {
-        //<BlockItem> ::= <Decl> | <Stmt>
         if (currentWord.isConst()) {
+            GETWORD();
             constDeclare();
         } else if (currentWord.isInt()) {
             varDeclare();
@@ -204,18 +208,16 @@ public class GrammarAnalyzer {
         }
     }
 
+    /* <Stmt> ::= <LVal> '=' <Exp> ';'
+                 | [Exp] ';' //有⽆Exp两种情况
+                 | <Block>
+                 | 'if' '( <Cond> ')' <Stmt> [ 'else' <Stmt> ]
+                 | 'while' '(' <Cond> ')' <Stmt>
+                 | 'break;' | 'continue;'
+                 | 'return' [<Exp>] ';'
+                 | <LVal> = 'getint();'
+                 | 'printf('FormatString{,<Exp>}');'     */
     public void stmt() throws MyException {
-        /* <Stmt> ::= <LVal> '=' <Exp> ';'
-                     | [Exp] ';' //有⽆Exp两种情况
-                     | <Block>
-                     | 'if' '( <Cond> ')' <Stmt> [ 'else' <Stmt> ]
-                     | 'while' '(' <Cond> ')' <Stmt>
-                     | 'break;' | 'continue;'
-                     | 'return' [<Exp>] ';'
-                     | <LVal> = 'getint();'
-                     | 'printf('FormatString{,<Exp>}');'
-
-         */
         if (currentWord.isIf()) {
             ifStatement();
         } else if (currentWord.isWhile()) {
@@ -283,22 +285,28 @@ public class GrammarAnalyzer {
                         GETWORD();
                         CHECKRPARENT();
                     }
-                    GETWORD();
-                    CHECKSEMI();
                 }
+                GETWORD();
+                CHECKSEMI();
             } catch (MyException e) {
                 currentWord = lexicalAnalyzer.getByIndex(saveIndex);
                 exp();
             }
 
         } else {
-            ERROR(100, currentLine);
+            try {
+                exp();
+                GETWORD();
+                CHECKSEMI();
+            } catch (MyException e) {
+                ERROR(100, currentLine);
+            }
         }
         PRINT("<Stmt>");
     }
 
+    // 'if' '( <Cond> ')' <Stmt> [ 'else' <Stmt> ]
     public void ifStatement() throws MyException {
-        // 'if' '( <Cond> ')' <Stmt> [ 'else' <Stmt> ]
         GETWORD();
         CHECKLPARENT();
         GETWORD();
@@ -314,8 +322,8 @@ public class GrammarAnalyzer {
         }
     }
 
+    // 'while' '(' <Cond> ')' <Stmt>
     public void whileStatement() throws MyException {
-        // 'while' '(' <Cond> ')' <Stmt>
         GETWORD();
         CHECKLPARENT();
         GETWORD();
@@ -331,10 +339,12 @@ public class GrammarAnalyzer {
         PRINT("<Cond>");
     }
 
+    //<LOrExp> ::= <LAndExp> | <LOrExp> '||' <LAndExp>
+    // <LOrExp> ::= <LAndExp> {'||' <LAndExp>}
     public void lOrExp() throws MyException {
-        // <LOrExp> ::= <LAndExp> {'||' <LAndExp>}
         lAndExp();
         while (lexicalAnalyzer.checkOr()) {
+            PRINT("<LOrExp>");
             GETWORD();
             GETWORD();
             lAndExp();
@@ -342,10 +352,12 @@ public class GrammarAnalyzer {
         PRINT("<LOrExp>");
     }
 
+    // <LAndExp> ::= <EqExp> | <LAndExp> && <EqExp>
+    // <LAndExp> ::= <EqExp> { && <EqExp> }
     public void lAndExp() throws MyException {
-        // <LAndExp> ::= <EqExp> { && <EqExp> }
         eqExp();
         while (lexicalAnalyzer.checkAnd()) {
+            PRINT("<LAndExp>");
             GETWORD();
             GETWORD();
             eqExp();
@@ -353,10 +365,12 @@ public class GrammarAnalyzer {
         PRINT("<LAndExp>");
     }
 
+    // <EqExp> ::= <RelExp> | <EqExp> (== | !=) <RelExp>
+    // <EqExp> ::= <RelExp> { (== | !=) <RelExp> }
     public void eqExp() throws MyException {
-        // <EqExp> ::= <RelExp> { (== | !=) <RelExp> }
         relExp();
         while (lexicalAnalyzer.checkEq()) {
+            PRINT("<EqExp>");
             GETWORD();
             GETWORD();
             relExp();
@@ -365,10 +379,12 @@ public class GrammarAnalyzer {
         PRINT("<EqExp>");
     }
 
+    // <RelExp> ::= <AddExp> | <RelExp> (< | > | <= | >=) <AddExp>
+    // <RelExp> ::= <AddExp>  { (< | > | <= | >=) <AddExp> }
     public void relExp() throws MyException {
-        // <RelExp> ::= <AddExp>  { (< | > | <= | >=) <AddExp> }
         addExp();
         while (lexicalAnalyzer.checkRel()) {
+            PRINT("<RelExp>");
             GETWORD();
             GETWORD();
             addExp();
@@ -376,9 +392,9 @@ public class GrammarAnalyzer {
         PRINT("<RelExp>");
     }
 
+    // <ConstDef> ::= <Ident> { '[' <ConstExp> ']' } '=' <ConstInitVal>
     public void constDefine() throws MyException {
         //table
-        // <ConstDef> ::= <Ident> { '[' <ConstExp> ']' } '=' <ConstInitVal>
         //<Ident>
         CHECKIDENT();
         String ident = currentWord.getValue();
@@ -402,7 +418,6 @@ public class GrammarAnalyzer {
             }
         }
         // '='
-//        GETWORD();
         if (!currentWord.isAssign()) {
             ERROR(100, currentLine);
         }
@@ -412,6 +427,7 @@ public class GrammarAnalyzer {
         PRINT("<ConstDef>");
     }
 
+    // <ConstInitVal> ::= <ConstExp> | '{' [ <ConstInitVal> { ',' <ConstInitVal> } ] '}'
     public void constInitVal(int dimension) throws MyException {
         if (dimension == 1) {
             constExp();
@@ -419,11 +435,18 @@ public class GrammarAnalyzer {
             if (!currentWord.isLbrace()) {
                 ERROR(100, currentLine);
             }
-            do {
-                GETWORD();
+            GETWORD();
+            if (!currentWord.isRbrace()) {
                 constExp();
+                PRINT("<ConstInitVal>");
+                while (lexicalAnalyzer.checkComma()) {
+                    GETWORD(); //comma
+                    GETWORD();
+                    constExp();
+                    PRINT("<ConstInitVal>");
+                }
                 GETWORD();
-            } while (currentWord.isComma());
+            }
             CHECKRBRACE();
         } else {
             if (!currentWord.isLbrace()) {
@@ -434,12 +457,21 @@ public class GrammarAnalyzer {
                 if (!currentWord.isLbrace()) {
                     ERROR(100, currentLine);
                 }
-                do {
-                    GETWORD();
+                GETWORD();
+                if (!currentWord.isRbrace()) {
                     constExp();
+                    PRINT("<ConstInitVal>");
+                    while (lexicalAnalyzer.checkComma()) {
+                        GETWORD(); //comma
+                        GETWORD();
+                        constExp();
+                        PRINT("<ConstInitVal>");
+                    }
                     GETWORD();
-                } while (currentWord.isComma());
+                }
                 CHECKRBRACE();
+
+                PRINT("<ConstInitVal>");
                 GETWORD();
             } while (currentWord.isComma());
             CHECKRBRACE();
@@ -447,9 +479,9 @@ public class GrammarAnalyzer {
         PRINT("<ConstInitVal>");
     }
 
+    //<Ident> | <Ident> { '[' <ConstExp> ']' } '=' <InitVal>
+    //<Ident>
     public void varDefine() throws MyException {
-        //<Ident> | <Ident> { '[' <ConstExp> ']' } '=' <InitVal>
-        //<Ident>
         CHECKIDENT();
         //table
         String ident = currentWord.getValue();
@@ -488,11 +520,19 @@ public class GrammarAnalyzer {
             if (!currentWord.isLbrace()) {
                 ERROR(100, currentLine);
             }
-            do {
-                GETWORD();
+            GETWORD();
+            if (!currentWord.isRbrace()) {
                 exp();
+                PRINT("<InitVal>");
+                while (lexicalAnalyzer.checkComma()) {
+                    GETWORD();
+                    GETWORD();
+                    exp();
+
+                    PRINT("<InitVal>");
+                }
                 GETWORD();
-            } while (currentWord.isComma());
+            }
             CHECKRBRACE();
         } else {
             if (!currentWord.isLbrace()) {
@@ -503,12 +543,20 @@ public class GrammarAnalyzer {
                 if (!currentWord.isLbrace()) {
                     ERROR(100, currentLine);
                 }
-                do {
-                    GETWORD();
+                GETWORD();
+                if (!currentWord.isRbrace()) {
                     exp();
+                    PRINT("<InitVal>");
+                    while (lexicalAnalyzer.checkComma()) {
+                        GETWORD();
+                        GETWORD();
+                        exp();
+                        PRINT("<InitVal>");
+                    }
                     GETWORD();
-                } while (currentWord.isComma());
+                }
                 CHECKRBRACE();
+                PRINT("<InitVal>");
                 GETWORD();
             } while (currentWord.isComma());
             CHECKRBRACE();
@@ -526,12 +574,13 @@ public class GrammarAnalyzer {
         PRINT("<Exp>");
     }
 
+    // <AddExp> ::= <MulExp> | <AddExp> (+|−) <MulExp>
+    // <AddExp> ::= <MulExp> { (+|−) <MulExp> }
     public void addExp() throws MyException {
-        //<AddExp> ::= <MulExp> | <AddExp> (+|−) <MulExp>
-        // <AddExp> ::= <MulExp> { (+|−) <MulExp> }
         mulExp();
 
         while (lexicalAnalyzer.checkUnaryAdd()) {
+            PRINT("<AddExp>");
             GETWORD();
             GETWORD();
             mulExp();
@@ -539,12 +588,13 @@ public class GrammarAnalyzer {
         PRINT("<AddExp>");
     }
 
+    // <MulExp> ::= <UnaryExp> | <MulExp> (*|/|%) <UnaryExp>
+    // <MulExp> ::= <UnaryExp> {  (*|/|%) <UnaryExp>  }
     public void mulExp() throws MyException {
-        // <MulExp> ::= <UnaryExp> | <MulExp> (*|/|%) <UnaryExp>
-        // <MulExp> ::= <UnaryExp> {  (*|/|%) <UnaryExp>  }
         unaryExp();
 
         while (lexicalAnalyzer.checkUnaryCal()) {
+            PRINT("<MulExp>");
             GETWORD();
             GETWORD();
             unaryExp();
@@ -552,16 +602,15 @@ public class GrammarAnalyzer {
         PRINT("<MulExp>");
     }
 
+    //<UnaryExp> ::= <PrimaryExp> | <Ident> '(' [<FuncRParams>] ')' | <UnaryOp> <UnaryExp>
     public void unaryExp() throws MyException {
-        //<UnaryExp> ::= <PrimaryExp> | <Ident> '(' [<FuncRParams>] ')' | <UnaryOp> <UnaryExp>
-        if (lexicalAnalyzer.checkFuncParam()) {
-            CHECKIDENT();
+        if (currentWord.isIdent() && lexicalAnalyzer.checkFuncParam()) {
             GETWORD();
             if (!lexicalAnalyzer.checkRparent()) {
-                funcRParams();
-            } else {
                 GETWORD();
+                funcRParams();
             }
+            GETWORD();
             CHECKRPARENT();
         } else if (currentWord.isUnaryOp()) {
             unaryOp();
@@ -573,8 +622,8 @@ public class GrammarAnalyzer {
         PRINT("<UnaryExp>");
     }
 
+    //<PrimaryExp> ::= '(' <Exp> ')' | <LVal> | <Number>
     public void primaryExp() throws MyException {
-        //<PrimaryExp> ::= '(' <Exp> ')' | <LVal> | <Number>
         if (currentWord.isLparent()) {
             GETWORD();
             exp();
@@ -590,8 +639,8 @@ public class GrammarAnalyzer {
         PRINT("<PrimaryExp>");
     }
 
+    // <LVal> ::= <Ident> {'[' <Exp> ']'}
     public void lVal() throws MyException {
-        // <LVal> ::= <Ident> {'[' <Exp> ']'}
         CHECKIDENT();
         if (lexicalAnalyzer.checkLbrack()) {
             GETWORD();
@@ -614,18 +663,19 @@ public class GrammarAnalyzer {
         PRINT("<LVal>");
     }
 
+    //<FuncRParams> → <Exp> { ',' <Exp> }
     public void funcRParams() throws MyException {
-        //<FuncRParams> → <Exp> { ',' <Exp> }
-        do {
+        exp();
+        while (lexicalAnalyzer.checkComma()) {
+            GETWORD();
             GETWORD();
             exp();
-            GETWORD();
-        } while (currentWord.isComma());
+        }
         PRINT("<FuncRParams>");
     }
 
+    //<UnaryOp> ::= + | - | !
     public void unaryOp() throws MyException {
-        //<UnaryOp> ::= + | - | !
         if (!currentWord.isMinus() && !currentWord.isPlus() && !currentWord.isNot()) {
             ERROR(100, currentLine);
         }
@@ -643,7 +693,7 @@ public class GrammarAnalyzer {
     public void PRINT(String str) {
         if (output) {
             try {
-                //System.out.println(str);
+                System.out.println(str);
                 str = str.concat("\n");
                 out.write(str);
             } catch (IOException e) {
