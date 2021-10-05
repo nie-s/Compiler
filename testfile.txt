@@ -5,5 +5,16 @@
 //const int i[2] = {1,1};
 //int i[2][2] = {{1,1},{1,1}};
 //int i = a + b;
-int i = a * b * c + a ;
+//int i = a * b * c + a ;
 // /*//*//*PrintId*/_();;{}/*//"*/
+
+// <LVal> '=' <Exp> ';'
+//  [Exp] ';'
+//  <LVal> = 'getint();'
+
+int main() {
+    a = a * b;
+    func(a,b[1][1],v);
+    a * b ;
+    a = getint();
+}

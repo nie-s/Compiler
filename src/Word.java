@@ -60,7 +60,7 @@ public class Word {
     }
 
     public boolean isGetInt() {
-        return type.equals("PRINTFTK");
+        return type.equals("GETINTTK");
     }
 
     public boolean isReturn() {

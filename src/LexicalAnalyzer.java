@@ -46,8 +46,13 @@ public class LexicalAnalyzer {
                 }
             }
         }
-        print();
+        // print();
         wordCnt = wordList.size();
+    }
+
+    public Word getByIndex(int index) {
+        this.index = index;
+        return wordList.get(this.index++);
     }
 
     public void getIdent() {
@@ -243,10 +248,6 @@ public class LexicalAnalyzer {
         return index < wordCnt && wordList.get(index).isMain();
     }
 
-    public boolean checkArray() {
-        return index < wordCnt && wordList.get(index).isLbrack();
-    }
-
     public boolean checkFuncParam() {
         return index < wordCnt && wordList.get(index).isLparent();
     }
@@ -284,5 +285,17 @@ public class LexicalAnalyzer {
         return index < wordCnt && wordList.get(index).isAnd();
     }
 
+    public boolean checkRparent() {
+        return index < wordCnt && wordList.get(index).isRparent();
+
+    }
+
+    public boolean checkLbrack() {
+        return index < wordCnt && wordList.get(index).isLbrack();
+    }
+
+    public boolean checkAssign() {
+        return index < wordCnt && wordList.get(index).isAssign();
+    }
 
 }
