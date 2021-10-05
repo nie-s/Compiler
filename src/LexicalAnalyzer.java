@@ -258,4 +258,31 @@ public class LexicalAnalyzer {
     public boolean checkUnaryAdd() {
         return index < wordCnt && wordList.get(index).isUnaryAdd();
     }
+
+    public boolean checkGetint() {
+        return index < wordCnt && wordList.get(index).isGetInt();
+    }
+
+    public boolean checkElse() {
+        return index < wordCnt && wordList.get(index).isElse();
+    }
+
+    public boolean checkOr() {
+        return index < wordCnt && wordList.get(index).isOr();
+    }
+
+    public boolean checkRel() {
+        return index < wordCnt && (wordList.get(index).isLss() || wordList.get(index).isLeq()
+                || wordList.get(index).isGeq() || wordList.get(index).isGre());
+    }
+
+    public boolean checkEq() {
+        return index < wordCnt && (wordList.get(index).isEql() || wordList.get(index).isNeq());
+    }
+
+    public boolean checkAnd() {
+        return index < wordCnt && wordList.get(index).isAnd();
+    }
+
+
 }

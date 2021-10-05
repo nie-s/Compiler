@@ -148,7 +148,7 @@ public class Word {
         return type.equals("EQL");
     }
 
-    public boolean isNel() {
+    public boolean isNeq() {
         return type.equals("NEQ");
     }
 
@@ -187,5 +187,9 @@ public class Word {
     public boolean isUnaryAdd() {
         return this.isPlus() || this.isMinus();
 
+    }
+
+    public boolean isStrcon() {
+        return type.equals("STRCON");
     }
 }
