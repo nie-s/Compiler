@@ -4,13 +4,19 @@ import java.io.IOException;
 
 public class GrammarAnalyzer {
     LexicalAnalyzer lexicalAnalyzer;
+    ExceptionHandler exceptionHandler;
+    SymbolTableHandler symbolTableHandler;
     Word currentWord = new Word();
     int currentLine = 0;
+    String currentFunc = "";
     boolean output = true;
     BufferedWriter out;
 
-    public GrammarAnalyzer(LexicalAnalyzer lexicalAnalyzer) {
+    public GrammarAnalyzer(LexicalAnalyzer lexicalAnalyzer, ExceptionHandler exceptionHandler,
+                           SymbolTableHandler symbolTableHandler) {
         this.lexicalAnalyzer = lexicalAnalyzer;
+        this.exceptionHandler = exceptionHandler;
+        this.symbolTableHandler = symbolTableHandler;
     }
 
     public void analyse() {
@@ -20,7 +26,7 @@ public class GrammarAnalyzer {
             PRINT("<CompUnit>");
             out.close();
         } catch (MyException e) {
-            System.out.println("=======" + e.errorLine + "======" + e.errorCode);
+            ;
         } catch (IOException e) {
             //
         }
@@ -36,7 +42,6 @@ public class GrammarAnalyzer {
             if (currentWord.isConst()) {
                 GETWORD();    //const
                 constDeclare();
-
             }
 
             //<VarDecl>
@@ -47,7 +52,6 @@ public class GrammarAnalyzer {
             }
 
         }
-
 
         //<FuncDef>
         while (lexicalAnalyzer.hasWord() && (currentWord.isInt() || currentWord.isVoid())) {
@@ -242,6 +246,8 @@ public class GrammarAnalyzer {
             GETWORD();
             if (!currentWord.isStrcon()) {
                 ERROR(100, currentLine);
+            } else if (!currentWord.checkStrcon()) {
+                ERROR(1, currentLine);
             }
             GETWORD();
             while (currentWord.isComma()) {
@@ -424,6 +430,8 @@ public class GrammarAnalyzer {
         GETWORD();
         // <ConstInitVal>
         constInitVal(dimension);
+//        symbolTableHandler.addToTable(currentFunc,)
+
         PRINT("<ConstDef>");
     }
 
@@ -600,6 +608,8 @@ public class GrammarAnalyzer {
             unaryExp();
         }
         PRINT("<MulExp>");
+
+
     }
 
     //<UnaryExp> ::= <PrimaryExp> | <Ident> '(' [<FuncRParams>] ')' | <UnaryOp> <UnaryExp>
@@ -687,7 +697,11 @@ public class GrammarAnalyzer {
     }
 
     public void ERROR(int errorCode, int errorLine) throws MyException {
-        throw new MyException(errorCode, errorLine);
+        exceptionHandler.output(new MyException(errorCode, errorLine));
+    }
+
+    public void ERROR(int errorCode, int errorLine, String errorMessage) throws MyException {
+        exceptionHandler.output(new MyException(errorCode, errorLine, errorMessage));
     }
 
     public void PRINT(String str) {
@@ -725,8 +739,17 @@ public class GrammarAnalyzer {
 
     public void CHECKIDENT() throws MyException {
         if (!currentWord.isIdent()) {
-            ERROR(103, currentLine);
+            ERROR(1, currentLine);
         }
+    }
+
+    public void CHECKIDENT(String currentFunc) throws MyException {
+        if (!currentWord.isIdent()) {
+            ERROR(1, currentLine, currentWord.type);
+        } else if (symbolTableHandler.searchInTable(currentWord.value, currentFunc)) {
+            ERROR((int) 'b', currentLine, currentWord.value);
+        }
+
     }
 
     public void CHECKRPARENT() throws MyException {
@@ -746,6 +769,5 @@ public class GrammarAnalyzer {
             ERROR(107, currentLine);
         }
     }
-
 
 }

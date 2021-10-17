@@ -6,10 +6,12 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 public class Compiler {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         ArrayList<String> lines = input();
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer();
-        GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer);
+        ExceptionHandler exceptionHandler = new ExceptionHandler();
+        SymbolTableHandler symbolTableHandler = new SymbolTableHandler();
+        GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer, exceptionHandler, symbolTableHandler);
         lexicalAnalyzer.analyse(lines);
         grammarAnalyzer.analyse();
 
@@ -18,7 +20,6 @@ public class Compiler {
     public static ArrayList<String> input() {
         ArrayList<String> lines = new ArrayList<>();
         try {
-
             File file = new File("testfile.txt");
             InputStreamReader read = new InputStreamReader(new FileInputStream(file));
             BufferedReader bufferedReader = new BufferedReader(read);

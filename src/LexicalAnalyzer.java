@@ -18,7 +18,7 @@ public class LexicalAnalyzer {
         init();
     }
 
-    public void analyse(ArrayList<String> lines) throws IOException {
+    public void analyse(ArrayList<String> lines){
         while (lineNum < lines.size()) {
             //TODO error if out of index
             line = lines.get(lineNum);
@@ -39,14 +39,11 @@ public class LexicalAnalyzer {
                     getString();
                 } else if (Character.isSpaceChar(c)) {
                     continue;
-
-
                 } else {
                     getNote();
                 }
             }
         }
-        // print();
         wordCnt = wordList.size();
     }
 

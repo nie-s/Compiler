@@ -192,4 +192,25 @@ public class Word {
     public boolean isStrcon() {
         return type.equals("STRCON");
     }
+
+    public boolean checkStrcon() {
+//        <FormatChar> → %d
+//        <NormalChar> → ⼗进制编码为32,33,40-126的ASCII字符
+        for (int i = 0; i < value.length(); i++) {
+            if (!(value.charAt(i) == 32 || value.charAt(i) == 33 ||
+                    (value.charAt(i) >= 40 && value.charAt(i) <= 126))) {
+                return false;
+            }
+            if (value.charAt(i) == '%') {
+                if (i == value.length() - 1) {
+                    return false;
+                } else if (value.charAt(i + 1) != 'd') {
+                    return false;
+                }
+                i++;
+            }
+        }
+
+        return true;
+    }
 }
