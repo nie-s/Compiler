@@ -213,4 +213,8 @@ public class Word {
 
         return true;
     }
+
+    public String toString() {
+        return this.type + ":" + this.value;
+    }
 }

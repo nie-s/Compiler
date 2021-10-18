@@ -1,13 +1,7 @@
 INTTK int
-MAINTK main
-LPARENT (
-RPARENT )
-LBRACE {
-CONSTTK const
-INTTK int
-IDENFR d
+IDENFR x
 LBRACK [
-INTCON 2
+INTCON 3
 <Number>
 <PrimaryExp>
 <UnaryExp>
@@ -25,36 +19,164 @@ INTCON 2
 <ConstExp>
 RBRACK ]
 ASSIGN =
+<VarDef>
 LBRACE {
+<VarDecl>
 LBRACE {
-INTCON 1
+INTCON 10
+COMMA ,
+<VarDef>
+INTCON 20
+<VarDecl>
+RBRACE }
+COMMA ,
+LBRACE {
+<VarDef>
+INTCON 30
+<VarDecl>
+COMMA ,
+INTCON 40
+RBRACE }
+<VarDef>
+COMMA ,
+LBRACE {
+INTCON 50
+<VarDef>
+COMMA ,
+INTCON 60
+RBRACE }
+<VarDef>
+RBRACE }
+<VarDecl>
+SEMICN ;
+INTTK int
+IDENFR test
+<VarDef>
+LPARENT (
+<VarDecl>
+INTTK int
+IDENFR s
+RPARENT )
+<VarDef>
+LBRACE {
+<VarDecl>
+INTTK int
+IDENFR x
+LBRACK [
+INTCON 3
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
 <AddExp>
 <ConstExp>
-<ConstInitVal>
-COMMA ,
-IDENFR l_const_1
-<LVal>
+RBRACK ]
+LBRACK [
+INTCON 2
+<Number>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
 <AddExp>
 <ConstExp>
-<ConstInitVal>
+RBRACK ]
+ASSIGN =
+<VarDef>
+LBRACE {
+<VarDecl>
+LBRACE {
+INTCON 100
+COMMA ,
+<VarDef>
+INTCON 200
+<VarDecl>
 RBRACE }
-<ConstInitVal>
 COMMA ,
 LBRACE {
+<VarDef>
+INTCON 300
+<VarDecl>
+COMMA ,
+INTCON 400
 RBRACE }
-<ConstInitVal>
+<VarDef>
+COMMA ,
+LBRACE {
+INTCON 500
+<VarDef>
+COMMA ,
+INTCON 600
 RBRACE }
-<ConstInitVal>
-<ConstDef>
+<VarDef>
+RBRACE }
+<VarDecl>
 SEMICN ;
-<ConstDecl>
+PRINTFTK printf
+LPARENT (
+STRCON "%d\n"
+COMMA ,
+IDENFR x
+LBRACK [
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+RBRACK ]
+LBRACK [
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+RBRACK ]
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MULT *
+<PrimaryExp>
+<UnaryExp>
+IDENFR s
+<MulExp>
+<AddExp>
+<Exp>
+RPARENT )
+<Stmt>
+SEMICN ;
+<Stmt>
+RETURNTK return
+IDENFR x
+LBRACK [
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+RBRACK ]
+LBRACK [
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+RBRACK ]
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
 RBRACE }
 <Block>
 <MainFuncDef>

@@ -11,7 +11,8 @@ public class Compiler {
         LexicalAnalyzer lexicalAnalyzer = new LexicalAnalyzer();
         ExceptionHandler exceptionHandler = new ExceptionHandler();
         SymbolTableHandler symbolTableHandler = new SymbolTableHandler();
-        GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer, exceptionHandler, symbolTableHandler);
+        AbstractSyntaxTree ast = new AbstractSyntaxTree();
+        GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer, exceptionHandler, symbolTableHandler, ast);
         lexicalAnalyzer.analyse(lines);
         grammarAnalyzer.analyse();
 
