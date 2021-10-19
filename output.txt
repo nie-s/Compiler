@@ -1,182 +1,53 @@
 INTTK int
-IDENFR x
-LBRACK [
-INTCON 3
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-<AddExp>
-<ConstExp>
-RBRACK ]
-LBRACK [
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-<AddExp>
-<ConstExp>
-RBRACK ]
-ASSIGN =
-<VarDef>
-LBRACE {
-<VarDecl>
-LBRACE {
-INTCON 10
-COMMA ,
-<VarDef>
-INTCON 20
-<VarDecl>
-RBRACE }
-COMMA ,
-LBRACE {
-<VarDef>
-INTCON 30
-<VarDecl>
-COMMA ,
-INTCON 40
-RBRACE }
-<VarDef>
-COMMA ,
-LBRACE {
-INTCON 50
-<VarDef>
-COMMA ,
-INTCON 60
-RBRACE }
-<VarDef>
-RBRACE }
-<VarDecl>
-SEMICN ;
-INTTK int
-IDENFR test
-<VarDef>
+<FuncType>
+IDENFR a
 LPARENT (
-<VarDecl>
-INTTK int
-IDENFR s
 RPARENT )
-<VarDef>
 LBRACE {
-<VarDecl>
-INTTK int
-IDENFR x
-LBRACK [
-INTCON 3
+RETURNTK return
+INTCON 0
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
 <AddExp>
-<ConstExp>
-RBRACK ]
-LBRACK [
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-<AddExp>
-<ConstExp>
-RBRACK ]
-ASSIGN =
-<VarDef>
-LBRACE {
-<VarDecl>
-LBRACE {
-INTCON 100
-COMMA ,
-<VarDef>
-INTCON 200
-<VarDecl>
-RBRACE }
-COMMA ,
-LBRACE {
-<VarDef>
-INTCON 300
-<VarDecl>
-COMMA ,
-INTCON 400
-RBRACE }
-<VarDef>
-COMMA ,
-LBRACE {
-INTCON 500
-<VarDef>
-COMMA ,
-INTCON 600
-RBRACE }
-<VarDef>
-RBRACE }
-<VarDecl>
+<Exp>
 SEMICN ;
-PRINTFTK printf
+<Stmt>
+RBRACE }
+<Block>
+<FuncDef>
+INTTK int
+MAINTK main
 LPARENT (
-STRCON "%d\n"
-COMMA ,
-IDENFR x
-LBRACK [
-INTCON 0
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-<AddExp>
-<Exp>
-RBRACK ]
-LBRACK [
-INTCON 0
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-<AddExp>
-<Exp>
-RBRACK ]
+RPARENT )
+LBRACE {
+INTTK int
+IDENFR b
+<VarDef>
+SEMICN ;
+<VarDecl>
+IDENFR b
 <LVal>
-<PrimaryExp>
+ASSIGN =
+IDENFR a
+LPARENT (
 <UnaryExp>
 <MulExp>
 MULT *
-<PrimaryExp>
-<UnaryExp>
-IDENFR s
-<MulExp>
-<AddExp>
-<Exp>
+IDENFR a
+LPARENT (
 RPARENT )
-<Stmt>
-SEMICN ;
-<Stmt>
-RETURNTK return
-IDENFR x
-LBRACK [
-INTCON 1
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-<AddExp>
-<Exp>
-RBRACK ]
-LBRACK [
-INTCON 1
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-<AddExp>
-<Exp>
-RBRACK ]
-<LVal>
-<PrimaryExp>
 <UnaryExp>
 <MulExp>
 <AddExp>
 <Exp>
 SEMICN ;
 <Stmt>
+INTTK int
+IDENFR c
+<VarDef>
+<VarDecl>
 RBRACE }
 <Block>
 <MainFuncDef>

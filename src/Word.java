@@ -196,18 +196,26 @@ public class Word {
     public boolean checkStrcon() {
 //        <FormatChar> → %d
 //        <NormalChar> → ⼗进制编码为32,33,40-126的ASCII字符
-        for (int i = 0; i < value.length(); i++) {
-            if (!(value.charAt(i) == 32 || value.charAt(i) == 33 ||
-                    (value.charAt(i) >= 40 && value.charAt(i) <= 126))) {
-                return false;
-            }
-            if (value.charAt(i) == '%') {
-                if (i == value.length() - 1) {
+        String string = value.substring(1, value.length() - 1);
+        for (int i = 0; i < string.length(); i++) {
+
+            if (string.charAt(i) == '%') {
+                if (i == string.length() - 1) {
                     return false;
-                } else if (value.charAt(i + 1) != 'd') {
+                } else if (string.charAt(i + 1) != 'd') {
                     return false;
                 }
                 i++;
+            } else if (string.charAt(i) == '\\') {
+                if (i == string.length() - 1) {
+                    return false;
+                } else if (string.charAt(i + 1) != 'n') {
+                    return false;
+                }
+                i++;
+            } else if (!(string.charAt(i) == 32 || string.charAt(i) == 33 ||
+                    (string.charAt(i) >= 40 && string.charAt(i) <= 126))) {
+                return false;
             }
         }
 

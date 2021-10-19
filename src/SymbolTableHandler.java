@@ -1,9 +1,7 @@
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.regex.Pattern;
 
 public class SymbolTableHandler {
-    ArrayList<String> functions = new ArrayList<>();
+    HashMap<String, SymbolTable> functions = new HashMap<>();
     HashMap<Integer, SymbolTable> symbolTableList = new HashMap<>();
 
 
@@ -14,8 +12,8 @@ public class SymbolTableHandler {
 
     public boolean searchInTable(String ident, int current) {
         for (int i : symbolTableList.keySet()) {
-            if (i < current) {
-                boolean find = symbolTableList.get(current).search(ident);
+            if (i <= current) {
+                boolean find = symbolTableList.get(i).search(ident);
                 if (find) {
                     return true;
                 }
@@ -24,8 +22,16 @@ public class SymbolTableHandler {
         return false;
     }
 
+    public boolean searchInCurrentLayer(String ident, int current) {
+        return symbolTableList.get(current).search(ident);
+    }
+
     public void createSymbolTable(int layer) {
-        this.symbolTableList.put(layer, new SymbolTable());
+        if (!symbolTableList.containsKey(layer)) this.symbolTableList.put(layer, new SymbolTable());
+    }
+
+    public void deleteSymbolTable(int layer) {
+        this.symbolTableList.remove(layer);
     }
 
     public void addToTable(int layer, SymbolTable.Symbol symbol) {
@@ -33,12 +39,32 @@ public class SymbolTableHandler {
     }
 
     public boolean searchFunc(String name) {
-        return functions.contains(name);
+        return functions.containsKey(name);
     }
 
     public void addFunc(String name) {
-        this.functions.add(name);
+        this.functions.put(name, new SymbolTable());
     }
 
+    public void addFuncParam(String name, SymbolTable.Symbol symbol) {
+        this.functions.get(name).addSymbol(symbol);
+    }
 
+    public String checkType(String name, int layer) {
+        for (; layer >= 0; layer--) {
+            if (symbolTableList.get(layer).search(name)) {
+                return symbolTableList.get(layer).getType(name);
+            }
+        }
+        return "";
+    }
+
+    public int checkDimension(String name, int layer) {
+        for (; layer >= 0; layer--) {
+            if (symbolTableList.get(layer).search(name)) {
+                return symbolTableList.get(layer).getDimension(name);
+            }
+        }
+        return 0;
+    }
 }

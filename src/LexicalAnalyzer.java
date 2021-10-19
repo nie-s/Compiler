@@ -18,9 +18,8 @@ public class LexicalAnalyzer {
         init();
     }
 
-    public void analyse(ArrayList<String> lines){
+    public void analyse(ArrayList<String> lines) {
         while (lineNum < lines.size()) {
-            //TODO error if out of index
             line = lines.get(lineNum);
             lineNum++;
             i = 0;
@@ -33,7 +32,7 @@ public class LexicalAnalyzer {
                     }
                 } else if (isNonDigit(c)) {
                     getIdent();
-                } else if (Character.isDigit(c)) {    //TODO error if start with 0
+                } else if (Character.isDigit(c)) {
                     getInt();
                 } else if (c == '"') {
                     getString();
@@ -89,8 +88,8 @@ public class LexicalAnalyzer {
         StringBuilder wordBuilder = new StringBuilder();
         do {
             wordBuilder.append(c);
-            c = line.charAt(++i);                            //TODO restrict of NormalChar
-        } while (c != '"');                                  //TODO no matching "
+            c = line.charAt(++i);
+        } while (c != '"');
         wordBuilder.append(c);
         String formatString = wordBuilder.toString();
         addToList(formatString, "STRCON");
@@ -108,11 +107,11 @@ public class LexicalAnalyzer {
                 }
                 break;
             case '&':
-                i++;   //TODO error if not followed with '&'
+                i++;
                 addToList("&&", "AND");
                 break;
             case '|':
-                i++;   //TODO error if not followed with '|'
+                i++;
                 addToList("||", "OR");
                 break;
             case '+':
@@ -186,7 +185,6 @@ public class LexicalAnalyzer {
                 addToList("}", "RBRACE");
                 break;
             default:
-                //TODO error;
                 break;
 
         }
@@ -233,6 +231,11 @@ public class LexicalAnalyzer {
         return wordList.get(index++);
     }
 
+//    public String checkNext() {
+//        if (index + 1 < wordCnt) return "";
+//        else return wordList.get(index + 1).value;
+//    }
+
     public boolean checkFunc() {
         return index + 1 < wordCnt && wordList.get(index + 1).isLparent();
     }
@@ -259,6 +262,10 @@ public class LexicalAnalyzer {
 
     public boolean checkGetint() {
         return index < wordCnt && wordList.get(index).isGetInt();
+    }
+
+    public boolean checkSemi() {
+        return index < wordCnt && wordList.get(index).isSemiColon();
     }
 
     public boolean checkElse() {
@@ -289,6 +296,15 @@ public class LexicalAnalyzer {
 
     public boolean checkLbrack() {
         return index < wordCnt && wordList.get(index).isLbrack();
+    }
+
+    public boolean checkRbrack() {
+        return index < wordCnt && wordList.get(index).isRbrack();
+    }
+
+    public boolean checkLbrace() {
+        String t = wordList.get(index).value;
+        return index < wordCnt && wordList.get(index).isLbrace();
     }
 
     public boolean checkAssign() {

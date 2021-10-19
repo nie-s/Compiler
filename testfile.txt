@@ -1,3 +1,8 @@
-int main() {
-    const int d[2][2]={{1, l_const_1},{}};
+int a(){
+    return 0;
 }
+int main()
+{
+    int b;
+    b = a(*a();
+    int c

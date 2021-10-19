@@ -21,6 +21,11 @@ public class AbstractSyntaxTree {
         this.ast.get(parent).add(child);
     }
 
+
+    public ArrayList<Integer> getChild(int id) {
+        return ast.get(id);
+    }
+
     public class SyntaxNode {
         int pos;
 
@@ -71,7 +76,7 @@ public class AbstractSyntaxTree {
     }
 
     public class Exp extends SyntaxNode {
-        //        ArrayList<Integer> mulExps = new ArrayList<>();
+        //<AddExp> ::= <MulExp> | <AddExp> (+|−) <MulExp>
         boolean isConst;
         String op;
 
@@ -83,6 +88,7 @@ public class AbstractSyntaxTree {
     }
 
     public class MulExp extends SyntaxNode {
+        //<MulExp> ::= <UnaryExp> | <MulExp> (*|/|%) <UnaryExp>
         public MulExp(int pos) {
             super(pos);
         }
@@ -101,9 +107,15 @@ public class AbstractSyntaxTree {
             this.type = 3;
             this.exp = exp;
             switch (op) {
-                case "+" -> this.unaryOp = UnaryOp.PLUS;
-                case "-" -> this.unaryOp = UnaryOp.MINUS;
-                case "!" -> this.unaryOp = UnaryOp.NOT;
+                case "+":
+                    this.unaryOp = UnaryOp.PLUS;
+                    break;
+                case "-":
+                    this.unaryOp = UnaryOp.MINUS;
+                    break;
+                case "!":
+                    this.unaryOp = UnaryOp.NOT;
+                    break;
             }
         }
     }
@@ -133,9 +145,15 @@ public class AbstractSyntaxTree {
             super(pos);
             this.type = type;
             switch (type) {
-                case 1 -> this.exp = num;
-                case 2 -> this.lVal = num;
-                case 3 -> this.number = num;
+                case 1:
+                    this.exp = num;
+                    break;
+                case 2:
+                    this.lVal = num;
+                    break;
+                case 3:
+                    this.number = num;
+                    break;
             }
         }
     }
@@ -146,11 +164,11 @@ public class AbstractSyntaxTree {
         int dimension = 0;
         String name = "";
 
-        public LVal(boolean isConst, int rangex, int rangey, String name, int pos) {
+        public LVal(boolean isConst, int rangex, int rangey, int dimension, String name, int pos) {
             super(pos);
             this.rangex = rangex;
             this.rangey = rangey;
-            this.dimension = 2;
+            this.dimension = dimension;
             this.name = name;
         }
 
@@ -217,12 +235,27 @@ public class AbstractSyntaxTree {
             super(pos);
             this.type = type;
             switch (type) {
-                case 2, 8 -> this.exp = num;
-                case 3 -> this.block = num;
-                case 4 -> this.ifStmt = num;
-                case 5 -> this.whileStmt = num;
-                case 9 -> this.lVal = num;
-                case 10 -> this.printfStmt = num;
+                case 2:
+                    this.exp = num;
+                    break;
+                case 8:
+                    this.exp = num;
+                    break;
+                case 3:
+                    this.block = num;
+                    break;
+                case 4:
+                    this.ifStmt = num;
+                    break;
+                case 5:
+                    this.whileStmt = num;
+                    break;
+                case 9:
+                    this.lVal = num;
+                    break;
+                case 10:
+                    this.printfStmt = num;
+                    break;
             }
         }
 
@@ -308,5 +341,9 @@ public class AbstractSyntaxTree {
             super(pos);
             this.name = name;
         }
+    }
+
+    public SyntaxNode getById(int id) {
+        return map.get(id);
     }
 }

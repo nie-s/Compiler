@@ -16,6 +16,7 @@ public class Compiler {
         lexicalAnalyzer.analyse(lines);
         grammarAnalyzer.analyse();
 
+        exceptionHandler.output();
     }
 
     public static ArrayList<String> input() {
