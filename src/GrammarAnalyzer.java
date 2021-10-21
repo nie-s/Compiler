@@ -147,9 +147,14 @@ public class GrammarAnalyzer {
         currentFunc = ident;
         if (checkFunc(ident)) {
             ERROR('b', currentLine, ident);
+            isDupFunc = true;
+        } else {
+            isDupFunc = false;
         }
         symbolTableHandler.addFunc(ident);
-        ast.addNode(funcDefId, ast.new Func(funcType, ident, currentLine));
+        AbstractSyntaxTree.Func func = ast.new Func(funcType, ident, currentLine);
+        ast.addNode(funcDefId, func);
+        ast.addFunc(ident, func);
         GETWORD();
         if (currentWord.isLparent()) {
             if (lexicalAnalyzer.checkRparent()) {
@@ -313,7 +318,7 @@ public class GrammarAnalyzer {
                         ERROR('f', currentLine, currentFunc);
                     }
                     id = exp();
-                    checkSemi(); //TODO
+                    checkSemi();
                 }
                 ast.addNode(stmtId, ast.new Stmt(8, id, currentLine));
             }
@@ -677,7 +682,7 @@ public class GrammarAnalyzer {
                 while (lexicalAnalyzer.checkComma()) {
                     GETWORD(); //comma
                     GETWORD();
-                    expId = constExp();
+                    expId = exp();
                     tmp.add(expId);
                     PRINT("<InitVal>");
                 }
@@ -691,13 +696,13 @@ public class GrammarAnalyzer {
                 CHECKLBRACE();
                 GETWORD();
                 if (!currentWord.isRbrace()) {
-                    int expId = constExp();
+                    int expId = exp();
                     ArrayList<Integer> tmp = new ArrayList<>();
                     PRINT("<InitVal>");
                     while (lexicalAnalyzer.checkComma()) {
                         GETWORD(); //comma
                         GETWORD();
-                        expId = constExp();
+                        expId = exp();
                         tmp.add(expId);
                         PRINT("<InitVal>");
                     }
@@ -710,7 +715,7 @@ public class GrammarAnalyzer {
             } while (currentWord.isComma());
             CHECKRBRACE();
         }
-
+        PRINT("<InitVal>");
         ast.addNode(initValId, ast.new InitVal(false, exps, dimension, currentLine));
         return initValId;
     }
@@ -774,27 +779,28 @@ public class GrammarAnalyzer {
             String ident = currentWord.getValue();
 
             SymbolTable symbolTable = symbolTableHandler.functions.get(ident);
-            int realSize = symbolTable.symbols.size();
 
             int funcLine = currentWord.lineCnt;
             if (!checkFunc(ident)) {
                 ERROR('c', funcLine, ident);
             }
             GETWORD();
-            if (!lexicalAnalyzer.checkRparent()) {
-                if (realSize != 0) {
-                    GETWORD();
-                    int funcRParamsId = funcRParams(ident, funcLine, realSize);
-                    ast.addNode(unaryExpId, ast.new UnaryExp("+", 3, funcRParamsId, currentLine));
-                }
+            if (lexicalAnalyzer.checkRbrack()) {
+                ERROR('j', currentLine, currentWord.getValue());
+            } else if (!lexicalAnalyzer.checkRparent()) {
+                GETWORD();
+                int funcRParamsId = funcRParams(ident, funcLine);
+                ast.addNode(unaryExpId, ast.new UnaryExp("+", 3, funcRParamsId, currentLine));
+                checkRparent();
             } else {
                 checkFuncParamsCnt(ident, 0, null, funcLine);
                 int identId = idCounter++;
                 ast.addNode(identId, ast.new Ident(ident, currentLine));
                 ast.addNode(unaryExpId, ast.new UnaryExp("+", 3, identId, currentLine));
                 ast.addChild(unaryExpId, identId);
+                checkRparent();
+
             }
-            checkRparent();
         } else if (currentWord.isUnaryOp()) {
             unaryOp();
             String unaryOp = currentWord.getValue();
@@ -866,7 +872,7 @@ public class GrammarAnalyzer {
     }
 
     //<FuncRParams> → <Exp> { ',' <Exp> }
-    public int funcRParams(String ident, int funcLine, int size) {
+    public int funcRParams(String ident, int funcLine) {
         int funcRParamsId = idCounter++;
         int paracnt = 1;
         ArrayList<Integer> types = new ArrayList<>();
@@ -874,7 +880,8 @@ public class GrammarAnalyzer {
         ast.addNode(funcRParamsId, ast.new FuncR(ident, currentLine));
         types.add(funcRParam(funcRParamsId));
 
-        while (lexicalAnalyzer.checkComma() && paracnt < size) {
+//        while (lexicalAnalyzer.checkComma() && paracnt < size) {
+        while (lexicalAnalyzer.checkComma()) {
             GETWORD();
             GETWORD();
             paracnt++;
@@ -892,6 +899,13 @@ public class GrammarAnalyzer {
         int lValIndex = lexicalAnalyzer.index;
         currentWord = lexicalAnalyzer.getByIndex(saveIndex - 1);
         output = true;
+        String funcName = currentWord.getValue();
+        if (lexicalAnalyzer.checkLparent()) {
+            AbstractSyntaxTree.Func func = ast.getFuncByName(funcName);
+            if (func.type.equals("VOIDTK")) {
+                ERROR('e', currentLine, "void");
+            }
+        }   //TODO
         ast.addChild(funcRParamsId, exp());
         int expLVal = lexicalAnalyzer.index;
 
@@ -931,13 +945,10 @@ public class GrammarAnalyzer {
         }
     }
 
-    public void moveToNextLine() {
-
-    }
 
     public void addFuncParam(String ident, SymbolTable.Symbol symbol) {
         symbolTableHandler.addToTable(currentLayer, symbol);
-        symbolTableHandler.addFuncParam(currentFunc, symbol);
+        if (!isDupFunc) symbolTableHandler.addFuncParam(currentFunc, symbol);
     }
 
     public void GETWORD() {
@@ -1051,9 +1062,6 @@ public class GrammarAnalyzer {
                 if (stmt.type != 8) {
                     ERROR('g', currentLine, currentFuncType);
                 }
-//                else if (stmt.exp == 0) {
-//                    ERROR('g', currentLine);
-//                }
             }
 
         }

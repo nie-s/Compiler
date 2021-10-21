@@ -45,13 +45,14 @@ public class ExceptionHandler extends Exception {
         errors.put(11, "Expected <FormatString> but got ");
         errors.put(12, "Unknown type for funcDef, got ");
         errors.put(13, "Unknown type for mainDef, got ");
-        errors.put(13, "Expected <Int> but got");
+        errors.put(14, "Expected <Int> but got");
     }
 
     public void addError(MyException e) {
         try {
             outputs.add(e.errorLine + " " + (char) e.errorCode + "\n");
-            System.out.println("Error Line " + e.errorLine + " (" + e.errorCode + ") " + errors.get(e.errorCode) + ":" + e.errorMessage);
+            System.out.println("Error Line " + e.errorLine + " (" + e.errorCode + ") "
+                    + errors.get(e.errorCode) + ":" + e.errorMessage);
         } catch (Exception error) {
             ;
         }

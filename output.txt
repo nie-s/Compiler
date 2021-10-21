@@ -1,9 +1,28 @@
 INTTK int
 <FuncType>
-IDENFR a
+IDENFR test
 LPARENT (
+INTTK int
+IDENFR a
+<FuncFParam>
+COMMA ,
+INTTK int
+IDENFR a
+LBRACK [
+RBRACK ]
+<FuncFParam>
+<FuncFParams>
 RPARENT )
 LBRACE {
+IDENFR test
+LPARENT (
+RPARENT )
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
 RETURNTK return
 INTCON 0
 <Number>
@@ -23,20 +42,42 @@ LPARENT (
 RPARENT )
 LBRACE {
 INTTK int
-IDENFR b
+IDENFR a
 <VarDef>
 SEMICN ;
 <VarDecl>
+INTTK int
 IDENFR b
-<LVal>
-ASSIGN =
-IDENFR a
-LPARENT (
+LBRACK [
+INTCON 1
+<Number>
+<PrimaryExp>
 <UnaryExp>
 <MulExp>
-MULT *
-IDENFR a
+<AddExp>
+<ConstExp>
+RBRACK ]
+<VarDef>
+SEMICN ;
+<VarDecl>
+IDENFR test
 LPARENT (
+IDENFR a
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR b
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+<AddExp>
+<Exp>
+<FuncRParams>
 RPARENT )
 <UnaryExp>
 <MulExp>
@@ -44,10 +85,6 @@ RPARENT )
 <Exp>
 SEMICN ;
 <Stmt>
-INTTK int
-IDENFR c
-<VarDef>
-<VarDecl>
 RBRACE }
 <Block>
 <MainFuncDef>

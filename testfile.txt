@@ -1,8 +1,12 @@
-int a(){
-    return 0;
-}
-int main()
-{
-    int b;
-    b = a(*a();
-    int c
+    int test(int a, int a[]) {
+           test();
+           return 0;
+    }
+    int main() {
+
+        int a;
+        int b[1];
+
+        test(a,b);
+
+    }
