@@ -294,6 +294,11 @@ public class LexicalAnalyzer {
 
     }
 
+    public boolean checkLparent() {
+        return index < wordCnt && wordList.get(index).isLparent();
+
+    }
+
     public boolean checkLbrack() {
         return index < wordCnt && wordList.get(index).isLbrack();
     }

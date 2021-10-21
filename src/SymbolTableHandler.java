@@ -43,7 +43,7 @@ public class SymbolTableHandler {
     }
 
     public void addFunc(String name) {
-        this.functions.put(name, new SymbolTable());
+        if (!functions.containsKey(name)) this.functions.put(name, new SymbolTable());
     }
 
     public void addFuncParam(String name, SymbolTable.Symbol symbol) {

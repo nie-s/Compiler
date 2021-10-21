@@ -5,6 +5,7 @@ public class AbstractSyntaxTree {
 
     HashMap<Integer, ArrayList<Integer>> ast = new HashMap<>();
     HashMap<Integer, SyntaxNode> map = new HashMap<>();
+    HashMap<String, Func> funcs = new HashMap<>();
 
 
     public void addNode(int id, SyntaxNode node) {
@@ -345,5 +346,13 @@ public class AbstractSyntaxTree {
 
     public SyntaxNode getById(int id) {
         return map.get(id);
+    }
+
+    public void addFunc(String name, Func func) {
+        this.funcs.put(name, func);
+    }
+
+    public Func getFuncByName(String name) {
+        return funcs.get(name);
     }
 }
