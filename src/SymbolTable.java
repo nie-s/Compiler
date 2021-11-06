@@ -44,6 +44,8 @@ public class SymbolTable {
         String type;
         String value;
         int dimension;
+        int rangex;
+        int rangey;
         int initVal;
 
         public Symbol(String name, String type, int initVal, int dimension) {
@@ -51,6 +53,21 @@ public class SymbolTable {
             this.type = type;
             this.initVal = initVal;
             this.dimension = dimension;
+        }
+
+        public Symbol(String name, String type, int initVal, int rangex, int rangey) {
+            this.name = name;
+            this.type = type;
+            this.initVal = initVal;
+            this.rangex = rangex;
+            this.rangey = rangey;
+            if (rangex == 0 && rangey == 0) {
+                dimension = 0;
+            } else if (rangey == 0) {
+                dimension = 1;
+            } else {
+                dimension = 2;
+            }
         }
 
     }

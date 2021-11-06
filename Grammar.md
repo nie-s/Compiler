@@ -38,7 +38,7 @@
 <Cond> ::= <LOrExp> 
 <LOrExp> ::= <LAndExp> | <LOrExp> '||' <LAndExp>			// 1.LAndExp 2.|| 均需覆盖
 <LAndExp> ::= <EqExp> | <LAndExp> && <EqExp> 				// 1.EqExp 2.&& 均需覆盖
-<EqExp> ::= <RelExp> | <EqExp> (**== | !=**) <RelExp> // 1.RelExp 2.== 3.!=
+<EqExp> ::= <RelExp> | <EqExp> (== | !=) <RelExp> // 1.RelExp 2.== 3.!=
 <RelExp> ::= <AddExp> | <RelExp> (< | > | <= | >=) <AddExp> // 1.AddExp 2.< 3.> 4.<= 5.>= 
 <ConstExp> ::= <AddExp> 									//TODO 使⽤的Ident 必须是常量
 <Exp> ::= <AddExp>

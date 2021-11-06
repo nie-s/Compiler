@@ -12,11 +12,14 @@ public class Compiler {
         ExceptionHandler exceptionHandler = new ExceptionHandler();
         SymbolTableHandler symbolTableHandler = new SymbolTableHandler();
         AbstractSyntaxTree ast = new AbstractSyntaxTree();
-        GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer, exceptionHandler, symbolTableHandler, ast);
+        SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+        GrammarAnalyzer grammarAnalyzer = new GrammarAnalyzer(lexicalAnalyzer, exceptionHandler,
+                symbolTableHandler, ast, semanticAnalyzer);
         lexicalAnalyzer.analyse(lines);
         grammarAnalyzer.analyse();
-
         exceptionHandler.output();
+        semanticAnalyzer.output();
+//        Intermediate inter = new Intermediate(ast);
     }
 
     public static ArrayList<String> input() {

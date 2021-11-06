@@ -1,12 +1,6 @@
-    int test(int a, int a[]) {
-           test();
-           return 0;
-    }
-    int main() {
-
-        int a;
-        int b[1];
-
-        test(a,b);
-
-    }
+int main() {
+    int a;
+    int b;
+    int c[2] = {a*b,b*b};
+    return 0;
+}
