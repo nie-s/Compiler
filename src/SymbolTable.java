@@ -16,6 +16,15 @@ public class SymbolTable {
         return false;
     }
 
+    public Symbol get(String ident) {
+        for (Symbol symbol : symbols) {
+            if (symbol.name.equals(ident)) {
+                return symbol;
+            }
+        }
+        return null;
+    }
+
     public String getType(String ident) {
         for (Symbol symbol : symbols) {
             if (symbol.name.equals(ident)) {
@@ -42,32 +51,41 @@ public class SymbolTable {
     public static class Symbol {
         String name;
         String type;
-        String value;
+        ArrayList<Integer> value_1;
+        ArrayList<ArrayList<Integer>> value_2;
+        int value_0;
         int dimension;
+        boolean isConst;
         int rangex;
         int rangey;
-        int initVal;
 
-        public Symbol(String name, String type, int initVal, int dimension) {
+        public Symbol(String name, String type, boolean isConst, int value) {
             this.name = name;
             this.type = type;
-            this.initVal = initVal;
-            this.dimension = dimension;
+            this.value_0 = value;
+            this.dimension = 0;
+            this.isConst = isConst;
         }
 
-        public Symbol(String name, String type, int initVal, int rangex, int rangey) {
+
+        public Symbol(String name, String type, boolean isConst, ArrayList<Integer> value) {
             this.name = name;
             this.type = type;
-            this.initVal = initVal;
-            this.rangex = rangex;
-            this.rangey = rangey;
-            if (rangex == 0 && rangey == 0) {
-                dimension = 0;
-            } else if (rangey == 0) {
-                dimension = 1;
-            } else {
-                dimension = 2;
-            }
+            this.value_1 = value;
+            this.dimension = 1;
+            this.isConst = isConst;
+
+        }
+
+        public Symbol(String name, String type, boolean isConst, ArrayList<ArrayList<Integer>> value, int rangx, int rangy) {
+            this.name = name;
+            this.type = type;
+            this.value_2 = value;
+            this.dimension = 2;
+            this.rangex = rangx;
+            this.rangey = rangy;
+            this.isConst = isConst;
+
         }
 
     }

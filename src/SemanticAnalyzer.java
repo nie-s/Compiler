@@ -11,6 +11,7 @@ public class SemanticAnalyzer {
         if (output) {
             Quadruple quadruple = new Quadruple(op, dst, src1, src2);
             this.quadruples.add(quadruple);
+            System.out.println(quadruple);
         }
     }
 
@@ -39,6 +40,10 @@ public class SemanticAnalyzer {
 
     public void add(int dst, int src1, int src2) {
         addQuadruple("ADD", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+    }
+
+    public void sll(int dst, int src1, int src2) {
+        addQuadruple("SLL", "tmp@" + dst, "tmp@" + src1, String.valueOf(src2));
     }
 
     public void add(int dst, int src1, String src2) {
@@ -134,6 +139,10 @@ public class SemanticAnalyzer {
         addQuadruple("JAL", label, "", "");
     }
 
+    public void funcRet(String dst) {
+        addQuadruple("FUNCRET", dst, "", "");
+    }
+
     public void exit() {
         addQuadruple("EXIT", "", "", "");
     }
@@ -174,10 +183,22 @@ public class SemanticAnalyzer {
         addQuadruple("LW", "tmp@" + dst, src, "");
     }
 
-    public void sw(String dst, String src) {
-        addQuadruple("SW", dst, src, "");
+    public void lw(int dst, String src, int shift) {
+        addQuadruple("LW", "tmp@" + dst, src, "tmp@" + shift);
     }
 
+
+    public void sw(String dst, String shift, String src) {
+        addQuadruple("SW", dst, shift, src);
+    }
+
+    public void define(String name, int rangex, int rangey) {
+        addQuadruple("DEFINE", name, String.valueOf(rangex), String.valueOf(rangey));
+    }
+
+    public void defineEnd() {
+        addQuadruple("D_END", "", "", "");
+    }
 }
 
 // dst = "@RET";

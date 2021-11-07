@@ -49,7 +49,7 @@
 <PrimaryExp> ::= '(' <Exp> ')' | <LVal> | <Number>			 // 三种情况均需覆盖
 <LVal> ::= <Ident> {'[' <Exp> ']'}						 	//1.普通变量 2.⼀维数组 3.⼆维数组
 <FuncRParams> → <Exp> { ',' <Exp> } 						//Exp需要覆盖数组传参和部分数组传参
-<ConstExp> ::= <Exp>  									// 使⽤的Ident 必须是常量, 存在即可
+<ConstExp> ::= <Exp>  									    // 使用的Ident 必须是常量, 存在即可
 <UnaryOp> ::= + | - | ! 									// '!'仅出现在条件表达式中 
 <Number> ::= <IntConst>										// 存在即可
 

@@ -22,6 +22,18 @@ public class SymbolTableHandler {
         return false;
     }
 
+    public SymbolTable.Symbol getSymbol(String ident, int current) {
+        for (int i : symbolTableList.keySet()) {
+            if (i <= current) {
+                boolean find = symbolTableList.get(i).search(ident);
+                if (find) {
+                    return symbolTableList.get(i).get(ident);
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean searchInCurrentLayer(String ident, int current) {
         return symbolTableList.get(current).search(ident);
     }
