@@ -17,9 +17,11 @@ public class Compiler {
                 symbolTableHandler, ast, semanticAnalyzer);
         lexicalAnalyzer.analyse(lines);
         grammarAnalyzer.analyse();
-        exceptionHandler.output();
+//        exceptionHandler.output();
         semanticAnalyzer.output();
-//        Intermediate inter = new Intermediate(ast);
+        MipsGenerator mipsGenerator = new MipsGenerator(semanticAnalyzer.quadruples);
+        mipsGenerator.analyse();
+        mipsGenerator.output();
     }
 
     public static ArrayList<String> input() {

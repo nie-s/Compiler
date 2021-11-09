@@ -22,9 +22,9 @@ public class Quadruple {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("%-8s", op));
-        sb.append(String.format("%-15s", dst));
-        sb.append(String.format("%-15s", src1));
+        sb.append(String.format("%-10s", op));
+        sb.append(String.format("%-20s", dst));
+        sb.append(String.format("%-20s", src1));
         sb.append(src2);
         return sb.toString();
     }
@@ -34,36 +34,76 @@ public class Quadruple {
         SUB,    // 减法
         MUL,    // 乘法
         DIV,    // 除法
-        NOT,
+        SLL,
+        MOD,
+
+        WI,     // 写整数
+        WC,
+        WS,
+
         ASS,    // 赋值
-        FAS,    // 给函数赋返回值
-        LAB,    // 标签
-        CMP,    // 比较
+        ASS_CON,
+
+        DEFINE,
+        D_END,
+
+        LI,
+        LW,
+        SW,
+
+        FUNC,    //函数定义
+        LABEL,
+
+        J,      // 无条件跳转
+        JR,
+        JAL,
+        EXIT,
+
+        NOT,
         LSS,
         LEQ,
         GRT,
         GEQ,
         NEQ,
         EQ,
+
         BG,     // 大于跳转
         BGE,    // 大于或等于跳转
         BL,     // 小于跳转
         BLE,    // 小于或等于跳转
         BEQ,    // 等于跳转
         BNE,    // 不等于跳转
-        GOTO,
-        J,      // 无条件跳转
-        JR,
-        JAL,
+
+
+
         SAVE, //保存现场
         PARA,   // 函数参数
+        FUNCRET,
+
         RET,    // 函数返回
         PUSH,   // 压栈
         RI,     // 读整数
-        WI,     // 写整数
-        WC,
-        MAIN,    //main函数定义
-        FUNC,    //函数定义
-        EXIT,
+
+
+
+
+
+    }
+
+    public boolean isLabel() {
+        return this.op.equals("LABEL");
+    }
+
+    public boolean isDefine() {
+        return this.op.equals("DEFINE");
+    }
+
+    public boolean isDefineEnd() {
+        return this.op.equals("D_END");
+    }
+
+    public boolean isConstDefine() {
+        return this.op.equals("ASS_CON");
+
     }
 }

@@ -1,104 +1,21 @@
-int global_var = 0;
-int f[10][100];
 
-//构造最优矩阵
-void package0_1(int w[], int v[], int n, int c) {
+int main()
+{
+	int i = 1;
+    int j = 1;
+    int d[2] = {99,22};
 
-   /*int i;
-    int j;
-    int k;
-    i = 1;
-    j = 1;
-
-    //初始化矩阵
-    while (i <= n) {
-        f[i][0] = 0;
-        i = i + 1;
+    if (j==i) {
+        i = i +1;
     }
 
-    while (j <= c) {
-        f[0][j] = 0;
-        j = j + 1;
+    printf("%d\n",i);
+
+    if (j==i || j>=1 || j < i) {
+        i = i*d[j] +1;
     }
 
-    i = 1;
-*/
-    while (i <= n) {
-        j = 1;
-        while (j <= c) {
-            //当容量够放入k个第i个物品，并且放入之后的价值要比不放大
-            k = j / w[i];
-            int s;
-            s = j - k * w[i];
-            if (k > 0 && f[i - 1][s] + k * v[i] > f[i - 1][j]) {
-                f[i][j] = f[i - 1][s] + k * v[i];
-            } else {
-                f[i][j] = f[i - 1][j];
-            }
-            j = j + 1;
-        }
+        printf("%d",i);
 
-        i = i + 1;
-    }
-
-    printf("%d\n", f[n][c]);
-
+	return 0;
 }
-
-//构造最优解
-void getResult(int n, int c, int res[], int v[], int w[]) {
-    int i;
-    i = n;
-    int j;
-    j = c;
-    while (i >= 1) {
-        while (f[i][j] > f[i - 1][j]) {
-            res[i] = res[i] + 1;
-            j = j - w[i];
-        }
-        i = i - 1;
-    }
-}
-
-
-int main() {
-    printf("19373061\n");
-    int w[6] = {0, 4, 6, 6, 3, 6};//每个物品的重量
-    int v[6] = {0, 1, 1, 1, 2, 1};//每个物品的价值
-    int res[5] = {0, 0, 0, 0, 0};
-    int n;
-    n = 5; //物品的个数
-    int c;
-    c = 10; //背包能容的重量
-    int i;
-    i = 0;
-    int j;
-
-    package0_1(w, v, n, c);
-
-    while (i <= n) {
-        j = 0;
-        while (j <= c) {
-            printf("%d ", f[i][j]);
-            j = j + 1;
-        }
-        printf("\n");
-        i = i + 1;
-    }
-    getResult(n, c, res, v, w);
-    //放入背包的物品为:
-    i = 1;
-    while (i <= n) {
-        if (res[i] >= 1)
-            printf("%d %d\n", i, res[i]);
-        i = i + 1;
-    }
-
-    if (0 && func()) { ;
-    }
-    if (1 || func())
-        printf("%d\n", global_var); // 输出 0
-
-    return 0;
-}
-

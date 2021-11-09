@@ -4,21 +4,20 @@ import java.util.ArrayList;
 
 public class SemanticAnalyzer {
     ArrayList<Quadruple> quadruples = new ArrayList<>();
-    int labelCnt = 0;
+    ArrayList<Quadruple> tmp = new ArrayList<>();
     boolean output = true;
 
     public void addQuadruple(String op, String dst, String src1, String src2) {
         if (output) {
             Quadruple quadruple = new Quadruple(op, dst, src1, src2);
             this.quadruples.add(quadruple);
-            System.out.println(quadruple);
         }
     }
 
-    public void addQuadruple(String op, String dst, String src1, String src2, boolean global) {
+    public void addQuadruple_tmp(String op, String dst, String src1, String src2) {
         if (output) {
-            Quadruple quadruple = new Quadruple(op, dst, src1, src2, global);
-            this.quadruples.add(quadruple);
+            Quadruple quadruple = new Quadruple(op, dst, src1, src2);
+            this.tmp.add(quadruple);
         }
     }
 
@@ -26,16 +25,31 @@ public class SemanticAnalyzer {
         addQuadruple("FUNC_" + name + ":", "", "", "");
     }
 
-    public void mainDef() {
-        addQuadruple("FUNC_MAIN:", "", "", "");
+    public void funcEnd() {
+        addQuadruple("F_END:", "", "", "");
     }
 
-    public void assign(String name, int shift, int id) {
-        addQuadruple("ASS", name + "$" + shift, "tmp@" + id, "");
+    public void mainDef() {
+        addQuadruple("FUNC_main:", "", "", "");
     }
+
+    public void assign(String name, int id) {
+        addQuadruple_tmp("ASS", name, "tmp@" + id, "");
+    }
+
+    public void assign_recover() {
+        quadruples.addAll(tmp);
+        tmp.clear();
+    }
+
 
     public void conval(String dst, int value) {
-        addQuadruple("ASS", dst, String.valueOf(value), "");
+        addQuadruple_tmp("ASS_CON", dst, String.valueOf(value), "");
+    }
+
+    public void conval_recover() {
+        quadruples.addAll(tmp);
+        tmp.clear();
     }
 
     public void add(int dst, int src1, int src2) {
@@ -94,16 +108,16 @@ public class SemanticAnalyzer {
         addQuadruple("RI", "", "", "");
     }
 
-    public void printChar(char c) {
-        addQuadruple("WC", String.valueOf(c), "", "");
-    }
-
     public void printChar(String c) {
         addQuadruple("WC", c, "", "");
     }
 
+    public void printString(String c) {
+        addQuadruple("WS", c, "", "");
+    }
+
     public void printInt(int num) {
-        addQuadruple("WI", String.valueOf(num), "", "");
+        addQuadruple("WI", "tmp@" + String.valueOf(num), "", "");
     }
 
 
@@ -123,12 +137,8 @@ public class SemanticAnalyzer {
         }
     }
 
-    public void br(int cond, String label1, String label2) {
-        addQuadruple("BR", "tmp@" + cond, label1, label2);
-    }
-
     public void label(String label) {
-        addQuadruple(label, "", "", "");
+        addQuadruple("LABEL", label, "", "");
     }
 
     public void para(int src) {
@@ -149,6 +159,10 @@ public class SemanticAnalyzer {
 
     public void beq(int src1, String src2, String target) {
         addQuadruple("BEQ", "tmp@" + src1, src2, target);
+    }
+
+    public void beqz(int src1, String target) {
+        addQuadruple("BEQZ", "tmp@" + src1, target, "");
     }
 
     public void eq(int dst, int src1, int src2) {
@@ -187,13 +201,20 @@ public class SemanticAnalyzer {
         addQuadruple("LW", "tmp@" + dst, src, "tmp@" + shift);
     }
 
-
     public void sw(String dst, String shift, String src) {
         addQuadruple("SW", dst, shift, src);
     }
 
-    public void define(String name, int rangex, int rangey) {
-        addQuadruple("DEFINE", name, String.valueOf(rangex), String.valueOf(rangey));
+    public void define(String name, int layer, int rangex, int rangey) {
+        int len = 0;
+        if (rangex == 0 && rangey == 0) {
+            len = 1;
+        } else if (rangey == 0) {
+            len = rangex;
+        } else {
+            len = rangex * rangey;
+        }
+        addQuadruple("DEFINE", name + "." + layer, String.valueOf(len), "");
     }
 
     public void defineEnd() {

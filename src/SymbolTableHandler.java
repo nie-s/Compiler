@@ -79,4 +79,14 @@ public class SymbolTableHandler {
         }
         return 0;
     }
+
+    public int getLayer(String name, int layer) {
+        for (; layer >= 0; layer--) {
+            if (symbolTableList.get(layer).search(name)) {
+                return layer;
+            }
+        }
+
+        return 0;
+    }
 }
