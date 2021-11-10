@@ -2,6 +2,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -26,11 +27,12 @@ public class GrammarAnalyzer {
     int start = 0;
     int end = 0;
     String shift_lval = "";
-    boolean callFunc = false;
     boolean isWhileEnd = false;
     boolean output = true;
     BufferedWriter out;
     BufferedWriter error;
+
+    Stack<Quadruple> params = new Stack<>();
 
     public GrammarAnalyzer(LexicalAnalyzer lexicalAnalyzer, ExceptionHandler exceptionHandler,
                            SymbolTableHandler symbolTableHandler, AbstractSyntaxTree ast, SemanticAnalyzer semanticAnalyzer) {
@@ -172,6 +174,7 @@ public class GrammarAnalyzer {
         ast.addNode(funcDefId, func);
         ast.addFunc(ident, func);
 
+
         GETWORD();
         if (currentWord.isLparent()) {
             if (lexicalAnalyzer.checkRparent()) {
@@ -180,7 +183,6 @@ public class GrammarAnalyzer {
             } else if (lexicalAnalyzer.checkLbrace()) {
                 ERROR('j', currentLine, currentWord.getValue());
                 GETWORD();
-
             } else {
                 GETWORD();
                 currentLayer++;
@@ -230,6 +232,8 @@ public class GrammarAnalyzer {
     //<FuncFParams> ::= <FuncFParam> { ',' <FuncFParam> }
     public int funcFParams() throws MyException {
         int funcFId = idCounter++;
+        params.clear();
+
         ast.addNode(funcFId, ast.new FuncFParams(currentLine));
         ast.addChild(funcFId, funcFParam());
         while (lexicalAnalyzer.checkComma()) {
@@ -237,6 +241,11 @@ public class GrammarAnalyzer {
             GETWORD();
             ast.addChild(funcFId, funcFParam());
         }
+
+        while (!params.isEmpty()) {   //recover
+            semanticAnalyzer.quadruples.add(params.pop());
+        }
+
         PRINT("<FuncFParams>");
         return funcFId;
     }
@@ -276,10 +285,13 @@ public class GrammarAnalyzer {
 
         if (dimension == 0) {
             addFuncParam(ident, new SymbolTable.Symbol(ident, "int", false, 0));
+            params.push(new Quadruple("RECOVER", ident + ".1", "0", "0"));
         } else if (dimension == 1) {
-            addFuncParam(ident, new SymbolTable.Symbol(ident, "int", false, null));
+            addFuncParam(ident, new SymbolTable.Symbol(ident, "int", false, null, 0));
+            params.push(new Quadruple("RECOVER", ident + ".1", "1", "0"));
         } else {
             addFuncParam(ident, new SymbolTable.Symbol(ident, "int", false, null, 0, value));
+            params.push(new Quadruple("RECOVER", ident + ".1", "2", String.valueOf(value)));
         }
         PRINT("<FuncFParam>");
         return funcFParamId;
@@ -339,7 +351,7 @@ public class GrammarAnalyzer {
                 ast.addNode(stmtId, ast.new Stmt(6, currentLine));
                 ast.addNode(idCounter++, ast.new Break(currentLine));
                 ast.addChild(stmtId, idCounter);
-                semanticAnalyzer.jump("WHILE_END_" + currentWhile);
+                semanticAnalyzer.jump("$WHILE_END_" + currentWhile);
             } else {
                 ERROR('m', currentLine, "break");
             }
@@ -349,7 +361,7 @@ public class GrammarAnalyzer {
                 ast.addNode(stmtId, ast.new Stmt(7, currentLine));
                 ast.addNode(idCounter++, ast.new Continue(currentLine));
                 ast.addChild(stmtId, idCounter);
-                semanticAnalyzer.jump("WHILE_" + currentWhile);
+                semanticAnalyzer.jump("$WHILE_" + currentWhile);
             } else {
                 ERROR('m', currentLine, "continue");
             }
@@ -368,9 +380,10 @@ public class GrammarAnalyzer {
                     }
                     ast.addNode(stmtId, ast.new Stmt(8, currentLine));
                     if (currentFunc.equals("main")) {
+                        boolean seLast = semanticAnalyzer.output;
                         semanticAnalyzer.output = false;
                         exp();
-                        semanticAnalyzer.output = true;
+                        semanticAnalyzer.output = seLast;
                         semanticAnalyzer.exit();
                     } else {
                         ast.addChild(stmtId, id);
@@ -398,6 +411,11 @@ public class GrammarAnalyzer {
             ast.addNode(stmtId, ast.new Stmt(3, currentLine));
             ast.addChild(stmtId, block());
             CHECKRBRACE();
+        } else if (currentWord.isConst()) {
+            GETWORD();
+            constDeclare();
+        } else if (currentWord.isInt()) {
+            varDeclare();
         } else if (currentWord.isIdent()) {
             // <LVal> '=' <Exp> ';'
             //  [Exp] ';'
@@ -405,20 +423,21 @@ public class GrammarAnalyzer {
             int saveIndex = lexicalAnalyzer.index;
 
             output = false;
+            boolean seLast = semanticAnalyzer.output;
             semanticAnalyzer.output = false;
             lVal(false, 0, false);
             GETWORD();
             if (!currentWord.isAssign()) {
                 currentWord = lexicalAnalyzer.getByIndex(saveIndex - 1);
                 output = true;
-                semanticAnalyzer.output = true;
+                semanticAnalyzer.output = seLast;
                 ast.addNode(stmtId, ast.new Stmt(2, currentLine));
                 ast.addChild(stmtId, exp());
             } else {
                 currentWord = lexicalAnalyzer.getByIndex(saveIndex - 1);
                 int line = currentWord.lineCnt;
                 output = true;
-                semanticAnalyzer.output = true;
+                semanticAnalyzer.output = seLast;
                 String ident = currentWord.getValue();
                 int lValId = lVal(false, line, false);
                 String shift_local = shift_lval;
@@ -438,7 +457,7 @@ public class GrammarAnalyzer {
                     GETWORD();
                     CHECKLPARENT();
                     checkRparent();
-                    semanticAnalyzer.getInt();
+//                    semanticAnalyzer.getInt();
                     semanticAnalyzer.sw(ident + "." + layer, shift_local, "@getInt");
                 }
             }
@@ -517,18 +536,19 @@ public class GrammarAnalyzer {
         CHECKLPARENT();
         GETWORD();
         condCnt = 0;
+        boolean seLast = semanticAnalyzer.output;
         semanticAnalyzer.output = false;
         int saveIndex = lexicalAnalyzer.index;
         int lastcondition = condition();
 
-        start = labelCnt;
-        end = start + condCnt + 2;
-        labelCnt += condCnt + 4;
+        start = ++labelCnt;
+        end = start + condCnt + 1;
+        labelCnt += condCnt + 5;
 
         boolean lastoutput = output;
         output = false;
         currentWord = lexicalAnalyzer.getByIndex(saveIndex - 1);
-        semanticAnalyzer.output = true;
+        semanticAnalyzer.output = seLast;
         int condId = condition_2(lastcondition);
         output = lastoutput;
 
@@ -566,25 +586,25 @@ public class GrammarAnalyzer {
         GETWORD();
         CHECKLPARENT();
         GETWORD();
-
+        boolean seLast = semanticAnalyzer.output;
         semanticAnalyzer.output = false;
         int saveIndex = lexicalAnalyzer.index;
         condCnt = 0;
         int lastcondition = condition();
 
 
-        start = labelCnt++;
+        start = ++labelCnt;
         end = start + condCnt + 2;
-        labelCnt += condCnt + 3;
+        labelCnt += condCnt + 5;
 
         output = false;
         currentWord = lexicalAnalyzer.getByIndex(saveIndex - 1);
-        semanticAnalyzer.output = true;
+        semanticAnalyzer.output = seLast;
         int conditionId = condition_2(lastcondition);
 
         output = true;
         ast.addChild(whileId, conditionId);
-        int whileCnt = labelCnt++;
+        int whileCnt = ++labelCnt;
         int lastWhile = currentWhile;
         currentWhile = whileCnt;
 
@@ -602,12 +622,15 @@ public class GrammarAnalyzer {
         currentWord = lexicalAnalyzer.getByIndex(saveIndex - 1);
         output = false;
 
-        start += labelCnt++;
+        start = ++labelCnt;
         end = end_tmp;
+
         condCnt = condcnt_tmp;
+        semanticAnalyzer.label("$WHILE_" + currentWhile + ":");
         condition_2(lastcondition);
         output = true;
         semanticAnalyzer.label("$Cond_" + end + ":");
+        semanticAnalyzer.label("$WHILE_END_" + currentWhile + ":");
         labelCnt++;
         isWhileEnd = false;
         currentWord = lexicalAnalyzer.getByIndex(saveEndIndex - 1);
@@ -637,6 +660,7 @@ public class GrammarAnalyzer {
     // <LOrExp> ::= <LAndExp> {'||' <LAndExp>}
     public void lOrExp(int parent) {
         ast.addChild(parent, lAndExp());
+        condCnt++;
         while (lexicalAnalyzer.checkOr()) {
             condCnt++;
             PRINT("<LOrExp>");
@@ -649,26 +673,33 @@ public class GrammarAnalyzer {
 
     public void lOrExp_2(int lastcondition, int parent) {
         ArrayList<Integer> list = ast.ast.get(lastcondition);
-        int i = 0;
+        int i = 1;
         int nextLabel = 0;
-        if (condCnt == 0) {
-            nextLabel = isWhileEnd ? end - 1 : end;
-        } else if (i == ast.ast.get(lastcondition).size() - 1) {
+        int cnt = ast.ast.get(list.get(0)).size();
+        int local = start + 1;
+        if (condCnt == 1) {
+            nextLabel = isWhileEnd ? end - 1 : end; //只有一个条件 TODO whileEnd 涵义？
+            ast.addChild(parent, lAndExp_2(nextLabel, ast.ast.get(list.get(0)).size(), true));
+        } else if (i == ast.ast.get(lastcondition).size()) {
             nextLabel = end;
+            ast.addChild(parent, lAndExp_2(nextLabel, ast.ast.get(list.get(0)).size(), true));
+        } else {
+            nextLabel = local + cnt;
+            ast.addChild(parent, lAndExp_2(nextLabel, ast.ast.get(list.get(0)).size(), false));
         }
-
-        ast.addChild(parent, lAndExp_2(nextLabel, ast.ast.get(list.get(i)).size()));
         while (lexicalAnalyzer.checkOr()) {
             PRINT("<LOrExp>");
             GETWORD();
             GETWORD();
             i++;
-            if (i == ast.ast.get(lastcondition).size() - 1) {
-                nextLabel = end;
+            cnt += ast.ast.get(list.get(i - 1)).size();
+            if (i == ast.ast.get(lastcondition).size()) {
+                nextLabel = end; //如果是最后一个或条件
             } else {
-                nextLabel = start + ast.ast.get(list.get(i)).size();
+                nextLabel = local + cnt; //下一个或条件
             }
-            int land = lAndExp_2(nextLabel, ast.ast.get(list.get(i)).size());
+            boolean last = (i == condCnt);
+            int land = lAndExp_2(nextLabel, ast.ast.get(list.get(i - 1)).size(), last);
             ast.addChild(parent, land);
         }
         PRINT("<LOrExp>");
@@ -691,41 +722,42 @@ public class GrammarAnalyzer {
         return lAndId;
     }
 
-    public int lAndExp_2(int nextLabel, int lastand) {
+    public int lAndExp_2(int nextLabel, int lastand, boolean last) {
         int lAndId = idCounter++;
         ast.addNode(lAndId, ast.new LAndExp(currentLine));
         semanticAnalyzer.label("$Cond_" + start + ":");
         int eqExpId = eqExp();
         ast.addChild(lAndId, eqExpId);
         int j = 0;
-        if (start == condCnt || condCnt == 0) {
-            if (isWhileEnd) {
-                semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
-            } else {
-                semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
-            }
-        } else if (j == lastand - 1) {
+
+        if (last && j != lastand - 1 && isWhileEnd) {
+            semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
+        } else if (last && j == lastand - 1 && isWhileEnd) {
+            semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + nextLabel);
+        } else if (last && j == lastand - 1) {
+            semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
+        } else if (isWhileEnd || j == lastand - 1) {
             semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
         } else {
             semanticAnalyzer.beqz(eqExpId, "$Cond_" + nextLabel);
         }
+
         start++;
         j++;
         while (lexicalAnalyzer.checkAnd()) {
             PRINT("<LAndExp>");
             GETWORD();
             GETWORD();
-            semanticAnalyzer.label("Cond_" + start + ":");
+            semanticAnalyzer.label("$Cond_" + start + ":");
             eqExpId = eqExp();
             ast.addChild(lAndId, eqExpId);
-            if (start == condCnt || condCnt == 0) {
+
+            if (last && j != lastand - 1 && isWhileEnd) {
                 semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
-            } else if (j == lastand - 1) {
-                if (isWhileEnd) {
-                    semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
-                } else {
-                    semanticAnalyzer.beqz(eqExpId, "$Cond_" + (end));
-                }
+            } else if (last && j == lastand - 1) {
+                semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
+            } else if (isWhileEnd || j == lastand - 1) {
+                semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
             } else {
                 semanticAnalyzer.beqz(eqExpId, "$Cond_" + nextLabel);
             }
@@ -759,13 +791,13 @@ public class GrammarAnalyzer {
                 }
                 last = tmpCnt++;
             }
-            eqExpId = last;
         } else {
-            eqExpId = relExpId;
+            semanticAnalyzer.neqz(tmpCnt, last);
+            last = tmpCnt;
         }
 
         PRINT("<EqExp>");
-        return eqExpId;
+        return last;
     }
 
     // <RelExp> ::= <AddExp> | <RelExp> (< | > | <= | >=) <AddExp>
@@ -883,7 +915,7 @@ public class GrammarAnalyzer {
                 GETWORD();
             }
             symbolTableHandler.addToTable(currentLayer,
-                    new SymbolTable.Symbol(name, "int", true, list));
+                    new SymbolTable.Symbol(name, "int", true, list, rangex));
             CHECKRBRACE();
         } else {
             CHECKLBRACE();
@@ -892,13 +924,13 @@ public class GrammarAnalyzer {
                 GETWORD();
                 CHECKLBRACE();
                 GETWORD();
-                rangey++;
+                rangex++;
                 if (!currentWord.isRbrace()) {
                     ArrayList<Integer> tmp = new ArrayList<>();
                     int value = (ast.map.get(constExp())).value;
                     semanticAnalyzer.conval(name + "." + currentLayer, value);
                     tmp.add(value);
-                    rangex++;
+                    rangey++;
                     shift += 4;
                     PRINT("<ConstInitVal>");
                     while (lexicalAnalyzer.checkComma()) {
@@ -907,18 +939,18 @@ public class GrammarAnalyzer {
                         value = (ast.map.get(constExp())).value;
                         semanticAnalyzer.conval(name + "." + currentLayer, value);
                         tmp.add(value);
-                        rangex++;
+                        rangey++;
                         shift += 4;
                         PRINT("<ConstInitVal>");
                     }
                     GETWORD();
                     list.add(tmp);
                 }
-                rangex /= rangey;
                 CHECKRBRACE();
                 PRINT("<ConstInitVal>");
                 GETWORD();
             } while (currentWord.isComma());
+            rangey /= rangex;
             symbolTableHandler.addToTable(currentLayer,
                     new SymbolTable.Symbol(name, "int", true, list, rangex, rangey));
             ast.addNode(constInitValId, ast.new InitVal(true, null, dimension, currentLine));
@@ -980,7 +1012,7 @@ public class GrammarAnalyzer {
             if (dimension == 0) {
                 symbolTableHandler.addToTable(currentLayer, new SymbolTable.Symbol(ident, "int", false, 0));
             } else if (dimension == 1) {
-                symbolTableHandler.addToTable(currentLayer, new SymbolTable.Symbol(ident, "int", false, null));
+                symbolTableHandler.addToTable(currentLayer, new SymbolTable.Symbol(ident, "int", false, null, rangex));
             } else {
                 symbolTableHandler.addToTable(currentLayer, new SymbolTable.Symbol(ident, "int", false, null, rangex, rangey));
             }
@@ -1001,11 +1033,7 @@ public class GrammarAnalyzer {
         int rangey = 0;
         if (dimension == 0) {
             int expId = exp();
-            if (callFunc) {
-                semanticAnalyzer.funcRet(name + "." + currentLayer);  //TODO callFunc 是个什么玩意
-            } else {
-                semanticAnalyzer.assign(name + "." + currentLayer, expId);
-            }
+            semanticAnalyzer.assign(name + "." + currentLayer, expId);
             symbolTableHandler.addToTable(currentLayer, new SymbolTable.Symbol(name, "int", false, 0));
         } else if (dimension == 1) {
             CHECKLBRACE();
@@ -1030,7 +1058,7 @@ public class GrammarAnalyzer {
                 }
                 GETWORD();
             }
-            symbolTableHandler.addToTable(currentLayer, new SymbolTable.Symbol(name, "int", false, null));
+            symbolTableHandler.addToTable(currentLayer, new SymbolTable.Symbol(name, "int", false, null, rangex));
             CHECKRBRACE();
         } else {
             CHECKLBRACE();
@@ -1038,12 +1066,12 @@ public class GrammarAnalyzer {
                 GETWORD();
                 CHECKLBRACE();
                 GETWORD();
-                rangey++;
+                rangex++;
                 if (!currentWord.isRbrace()) {
                     int expId = exp();
                     semanticAnalyzer.assign(name + "." + currentLayer, expId);
                     shift += 4;
-                    rangex++;
+                    rangey++;
                     ArrayList<Integer> tmp = new ArrayList<>();
                     PRINT("<InitVal>");
                     while (lexicalAnalyzer.checkComma()) {
@@ -1052,7 +1080,7 @@ public class GrammarAnalyzer {
                         expId = exp();
                         semanticAnalyzer.assign(name + "." + currentLayer, expId);
                         shift += 4;
-                        rangex++;
+                        rangey++;
                         tmp.add(expId);
                         PRINT("<InitVal>");
                     }
@@ -1064,7 +1092,7 @@ public class GrammarAnalyzer {
                 GETWORD();
             } while (currentWord.isComma());
             CHECKRBRACE();
-            rangex /= rangey;
+            rangey /= rangex;
             symbolTableHandler.addToTable(currentLayer,
                     new SymbolTable.Symbol(name, "int", false, null, rangex, rangey));
 
@@ -1117,9 +1145,9 @@ public class GrammarAnalyzer {
                 }
             } else {
                 if (unaryAdd.equals("+")) {
-                    exp.value += (ast.map.get(mulExpId)).value;
+                    ast.map.get(last).value += (ast.map.get(mulExpId)).value;
                 } else {
-                    exp.value -= (ast.map.get(mulExpId)).value;
+                    ast.map.get(last).value -= (ast.map.get(mulExpId)).value;
                 }
             }
         }
@@ -1156,11 +1184,11 @@ public class GrammarAnalyzer {
             } else {
                 int value = (ast.map.get(unaryExpId)).value;
                 if (cal.equals("*")) {
-                    mul.value *= value;
+                    ast.map.get(last).value *= value;
                 } else if (cal.equals("/")) {
-                    mul.value /= value;
+                    ast.map.get(last).value /= value;
                 } else {
-                    mul.value %= value;
+                    ast.map.get(last).value %= value;
                 }
             }
         }
@@ -1191,8 +1219,8 @@ public class GrammarAnalyzer {
                 ast.addChild(unaryExpId, identId);
                 checkRparent();
             }
+            semanticAnalyzer.call(ident, getFuncParamsCnt(ident));
             semanticAnalyzer.funcRet("tmp@" + unaryExpId);
-            semanticAnalyzer.call(ident);
         } else if (currentWord.isUnaryOp()) {
             unaryOp();
             String unaryOp = currentWord.getValue();
@@ -1213,11 +1241,11 @@ public class GrammarAnalyzer {
                 AbstractSyntaxTree.SyntaxNode node = ast.map.get(unaryId);
                 int value = (ast.map.get(unaryId)).value;
                 if (unaryOp.equals("+")) {
-                    unaryExp.value = value;
+                    (ast.map.get(unaryId)).value = value;
                 } else if (unaryOp.equals("-")) {
-                    unaryExp.value = -value;
+                    (ast.map.get(unaryId)).value = -value;
                 } else {
-                    unaryExp.value = (value == 0) ? 0 : 1;
+                    (ast.map.get(unaryId)).value = (value == 0) ? 0 : 1;
                 }
                 unaryExpId = unaryId;
             }
@@ -1289,14 +1317,10 @@ public class GrammarAnalyzer {
         }
 
         if (isConst) {
-            //TODO VALUE 函数传数组
             int value = getLVal(name, dimension, rangx, rangy);
             ast.addNode(lValId, ast.new LVal(isConst, rangx, rangy, dimension, name, value, currentLine));
         } else {
-//            if (checkConst(name)) {
-//                int value = getLVal(name, dimension, rangx, rangy);
-//                number(tmpCnt++,value);
-//            }
+
             ast.addNode(lValId, ast.new LVal(isConst, rangx, rangy, dimension, name, 0, currentLine));
         }
 
@@ -1340,32 +1364,37 @@ public class GrammarAnalyzer {
     //<FuncRParams> → <Exp> { ',' <Exp> }
     public int funcRParams(String ident, int funcLine) {
         int funcRParamsId = idCounter++;
-        int paracnt = 1;
+        int paracnt = 0;
         ArrayList<Integer> types = new ArrayList<>();
 
         ast.addNode(funcRParamsId, ast.new FuncR(ident, currentLine));
-        types.add(funcRParam(funcRParamsId));
+        types.add(funcRParam(ident, paracnt++, funcRParamsId));
 
-//        while (lexicalAnalyzer.checkComma() && paracnt < size) {
+//        while (lexicalAnalyzer.checkComma() && paracnt < size)
         while (lexicalAnalyzer.checkComma()) {
             GETWORD();
             GETWORD();
-            paracnt++;
-            types.add(funcRParam(funcRParamsId));
+            types.add(funcRParam(ident, paracnt++, funcRParamsId));
         }
+
         checkFuncParamsCnt(ident, paracnt, types, funcLine);
         PRINT("<FuncRParams>");
         return funcRParamsId;
     }
 
-    public int funcRParam(int funcRParamsId) {
+    public int funcRParam(String ident, int cnt, int funcRParamsId) {
         int saveIndex = lexicalAnalyzer.index;
-        boolean lastoutput = output;
+
         output = false;
+        boolean seLast = semanticAnalyzer.output;
+        semanticAnalyzer.output = false;
+
         int lvalId = lVal(false, currentLine, false);
         int lValIndex = lexicalAnalyzer.index;
         currentWord = lexicalAnalyzer.getByIndex(saveIndex - 1);
-        output = lastoutput;
+        semanticAnalyzer.output = seLast;
+        output = true;
+
         String funcName = currentWord.getValue();
         if (lexicalAnalyzer.checkLparent()) {
             AbstractSyntaxTree.Func func = ast.getFuncByName(funcName);
@@ -1373,18 +1402,40 @@ public class GrammarAnalyzer {
                 ERROR('e', currentLine, "void");
             }
         }
-        int expId = exp();
-        ast.addChild(funcRParamsId, expId);
-        int expLVal = lexicalAnalyzer.index;
-        semanticAnalyzer.para(expId);
+
+        int expLVal = -1;
+        int dim = getFuncParamDim(ident, cnt);
+        if (dim == 0) {
+            int expId = exp();
+            ast.addChild(funcRParamsId, expId);
+            expLVal = lexicalAnalyzer.index;
+            semanticAnalyzer.para(expId, dim, 0);
+        } else {
+            int rangey = symbolTableHandler.getRangey(funcName, currentLayer);
+            int shift = 0;
+            int layer = symbolTableHandler.getLayer(funcName, currentLayer);
+            if (lexicalAnalyzer.checkLbrack()) {
+                GETWORD();  //[
+                GETWORD();  //[
+                shift = exp();
+                GETWORD();  //]
+                semanticAnalyzer.para(funcName + "." + layer + "$tmp@" + shift, dim, rangey);
+            } else {
+                semanticAnalyzer.para(funcName + "." + layer, dim, rangey);
+            }
+            expLVal = lexicalAnalyzer.index;
+
+        }
 
         if (lValIndex == expLVal) {
             String name = ((AbstractSyntaxTree.LVal) ast.getById(lvalId)).name;
             return symbolTableHandler.checkDimension(name, currentLayer) - checkDimension(lvalId);
         }
 
+
         return 0;
     }
+
 
     //<UnaryOp> ::= + | - | !
     public void unaryOp() {
@@ -1467,7 +1518,7 @@ public class GrammarAnalyzer {
 
     public int getArrayLength(String ident) {
         SymbolTable.Symbol symbol = symbolTableHandler.getSymbol(ident, currentLayer);
-        return symbol == null ? 0 : symbol.rangex;
+        return symbol == null ? 0 : symbol.rangey;
     }
 
     public boolean checkDupDefine(String ident) {
@@ -1523,6 +1574,19 @@ public class GrammarAnalyzer {
             }
         }
     }
+
+    public int getFuncParamsCnt(String ident) {
+        SymbolTable symbolTable = symbolTableHandler.functions.get(ident);
+        if (symbolTable == null) return 0;
+        return symbolTable.symbols.size();
+    }
+
+    public int getFuncParamDim(String ident, int cnt) {
+        SymbolTable symbolTable = symbolTableHandler.functions.get(ident);
+        if (symbolTable == null) return 0;
+        return symbolTable.symbols.get(cnt).dimension;
+    }
+
 
     public void checkValConst(int id, int line) {
         String name = ((AbstractSyntaxTree.LVal) ast.getById(id)).name;

@@ -80,6 +80,21 @@ public class SymbolTableHandler {
         return 0;
     }
 
+    public int getRangey(String name, int layer) {
+        for (; layer >= 0; layer--) {
+            if (symbolTableList.get(layer).search(name)) {
+                if (symbolTableList.get(layer).get(name).dimension == 2) {
+                    return symbolTableList.get(layer).get(name).rangey;
+                } else if (symbolTableList.get(layer).get(name).dimension == 1) {
+                    return symbolTableList.get(layer).get(name).rangex;
+                } else {
+                    return 0;
+                }
+            }
+        }
+        return 0;
+    }
+
     public int getLayer(String name, int layer) {
         for (; layer >= 0; layer--) {
             if (symbolTableList.get(layer).search(name)) {

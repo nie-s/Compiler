@@ -67,25 +67,14 @@ public class Quadruple {
         NEQ,
         EQ,
 
-        BG,     // 大于跳转
-        BGE,    // 大于或等于跳转
-        BL,     // 小于跳转
-        BLE,    // 小于或等于跳转
         BEQ,    // 等于跳转
-        BNE,    // 不等于跳转
-
 
 
         SAVE, //保存现场
         PARA,   // 函数参数
-        FUNCRET,
 
         RET,    // 函数返回
         PUSH,   // 压栈
-        RI,     // 读整数
-
-
-
 
 
     }
@@ -104,6 +93,9 @@ public class Quadruple {
 
     public boolean isConstDefine() {
         return this.op.equals("ASS_CON");
+    }
 
+    public boolean isRecover() {
+        return this.op.equals("RECOVER");
     }
 }

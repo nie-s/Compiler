@@ -11,6 +11,7 @@ public class SemanticAnalyzer {
         if (output) {
             Quadruple quadruple = new Quadruple(op, dst, src1, src2);
             this.quadruples.add(quadruple);
+//            System.out.println(quadruple);
         }
     }
 
@@ -18,6 +19,7 @@ public class SemanticAnalyzer {
         if (output) {
             Quadruple quadruple = new Quadruple(op, dst, src1, src2);
             this.tmp.add(quadruple);
+//            System.out.println(quadruple);
         }
     }
 
@@ -104,10 +106,6 @@ public class SemanticAnalyzer {
         addQuadruple("RET", "tmp@" + src, "", "");
     }
 
-    public void getInt() {
-        addQuadruple("RI", "", "", "");
-    }
-
     public void printChar(String c) {
         addQuadruple("WC", c, "", "");
     }
@@ -141,12 +139,16 @@ public class SemanticAnalyzer {
         addQuadruple("LABEL", label, "", "");
     }
 
-    public void para(int src) {
-        addQuadruple("PARA", "tmp@" + src, "", "");
+    public void para(int src, int dim, int rangey) {
+        addQuadruple("PARA", "tmp@" + src, String.valueOf(dim), String.valueOf(rangey));
     }
 
-    public void call(String label) {
-        addQuadruple("JAL", label, "", "");
+    public void para(String src, int dim, int rangey) {
+        addQuadruple("PARA", src, String.valueOf(dim), String.valueOf(rangey));
+    }
+
+    public void call(String label, int dim) {
+        addQuadruple("CALL", label, String.valueOf(dim), "");
     }
 
     public void funcRet(String dst) {
@@ -171,6 +173,13 @@ public class SemanticAnalyzer {
 
     public void neq(int dst, int src1, int src2) {
         addQuadruple("NEQ", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+    }
+    public void neqz(int dst, int src1) {
+        addQuadruple("NEQZ", "tmp@" + dst, "tmp@" + src1,"");
+    }
+
+    public void seqz(int dst, int src1) {
+        addQuadruple("SEQZ", "tmp@" + dst, "tmp@" + src1, "");
     }
 
     public void lss(int dst, int src1, int src2) {
@@ -206,15 +215,7 @@ public class SemanticAnalyzer {
     }
 
     public void define(String name, int layer, int rangex, int rangey) {
-        int len = 0;
-        if (rangex == 0 && rangey == 0) {
-            len = 1;
-        } else if (rangey == 0) {
-            len = rangex;
-        } else {
-            len = rangex * rangey;
-        }
-        addQuadruple("DEFINE", name + "." + layer, String.valueOf(len), "");
+        addQuadruple("DEFINE", name + "." + layer, String.valueOf(rangex), String.valueOf(rangey));
     }
 
     public void defineEnd() {

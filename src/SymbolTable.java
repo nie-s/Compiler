@@ -67,12 +67,12 @@ public class SymbolTable {
             this.isConst = isConst;
         }
 
-
-        public Symbol(String name, String type, boolean isConst, ArrayList<Integer> value) {
+        public Symbol(String name, String type, boolean isConst, ArrayList<Integer> value, int rangx) {
             this.name = name;
             this.type = type;
             this.value_1 = value;
             this.dimension = 1;
+            this.rangex = rangx;
             this.isConst = isConst;
 
         }
