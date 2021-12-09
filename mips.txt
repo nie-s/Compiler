@@ -1,0 +1,419 @@
+.data                             
+#define   d.0                     
+          d.0:        .word       4
+          .str0:      .asciiz     ", "
+          .str1:      .asciiz     ", "
+
+.text                             
+li        $sp         0x10040004  
+J         main                    
+                                  
+hhh:                              
+#mul      tmp@16      tmp@19      tmp@22
+#load     $t0         tmp@19      
+#load     $t0         i.1         
+lw        $t0         -8($sp)     
+#load     $t1         tmp@22      
+#load     $t1         i.1         
+lw        $t1         -8($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         0($sp)      
+#define   c.1                     
+lw        $t0         0($sp)      
+sw        $t0         4($sp)      
+                                  
+$Cond_1:                          
+#eq       tmp@53      tmp@47      1
+#load     $t0         tmp@47      
+#load     $t0         i.1         
+lw        $t0         -8($sp)     
+#load     $t1         1           
+li        $t1         1           
+slt       $t2         $t0         $t1
+slt       $t3         $t1         $t0
+or        $t2         $t2         $t3
+li        $t3         1           
+sub       $t2         $t3         $t2
+sw        $t2         8($sp)      
+#load     $t0         tmp@53      
+lw        $t0         8($sp)      
+beq       $t0         $0          $Cond_3
+                                  
+$Cond_2:                          
+#load     $v0         1           
+li        $v0         1           
+jr        $ra                     
+j         $Cond_4                 
+                                  
+$Cond_3:                          
+                                  
+$Cond_4:                          
+                                  
+$Cond_8:                          
+#eq       tmp@91      tmp@85      2
+#load     $t0         tmp@85      
+#load     $t0         i.1         
+lw        $t0         -8($sp)     
+#load     $t1         2           
+li        $t1         2           
+slt       $t2         $t0         $t1
+slt       $t3         $t1         $t0
+or        $t2         $t2         $t3
+li        $t3         1           
+sub       $t2         $t3         $t2
+sw        $t2         12($sp)     
+#load     $t0         tmp@91      
+lw        $t0         12($sp)     
+beq       $t0         $0          $Cond_10
+                                  
+$Cond_9:                          
+#load     $v0         2           
+li        $v0         2           
+jr        $ra                     
+j         $Cond_11                
+                                  
+$Cond_10:                         
+                                  
+$Cond_11:                         
+#mul      tmp@103     tmp@106     tmp@109
+#load     $t0         tmp@106     
+#load     $t0         c.1         
+lw        $t0         4($sp)      
+#load     $t1         tmp@109     
+#load     $t1         c.1         
+lw        $t1         4($sp)      
+mul       $t2         $t0         $t1
+sw        $t2         16($sp)     
+#load     $t1         tmp@103     
+lw        $t1         16($sp)     
+mul       $t2         $t1         -858993459
+mfhi      $t2                     
+add       $t2         $t1         $t2
+sra       $t2         $t2         3
+slt       $t3         $t1         $0
+neg       $t3         $t3         
+subu      $t3         $t2         $t3
+mul       $t3         $t3         10
+subu      $t3         $t1         $t3
+sw        $t3         16($sp)     
+#sw       c.1         0           tmp@103
+#load     $t1         tmp@103     
+lw        $t1         16($sp)     
+sw        $t1         4($sp)      
+#subi     tmp@118     tmp@122     1
+#load     $t0         tmp@122     
+#load     $t0         i.1         
+lw        $t0         -8($sp)     
+subi      $t2         $t0         1
+sw        $t2         24($sp)     
+#call     hhh                     
+#getpara  tmp@118     0           
+#load     $t0         tmp@118     
+lw        $t0         24($sp)     
+sw        $t0         28($sp)     
+sw        $ra         32($sp)     
+addu      $sp         $sp         36
+jal       hhh                     
+lw        $ra         -4($sp)     
+sub       $sp         $sp         36
+sw        $v0         28($sp)     
+#subi     tmp@130     tmp@134     2
+#load     $t0         tmp@134     
+#load     $t0         i.1         
+lw        $t0         -8($sp)     
+subi      $t2         $t0         2
+sw        $t2         32($sp)     
+#call     hhh                     
+#getpara  tmp@130     0           
+#load     $t0         tmp@130     
+lw        $t0         32($sp)     
+sw        $t0         36($sp)     
+sw        $ra         40($sp)     
+addu      $sp         $sp         44
+jal       hhh                     
+lw        $ra         -4($sp)     
+sub       $sp         $sp         44
+sw        $v0         36($sp)     
+#add      tmp@113     tmp@115     tmp@127
+#load     $t0         tmp@115     
+lw        $t0         28($sp)     
+#load     $t1         tmp@127     
+lw        $t1         36($sp)     
+addu      $t2         $t0         $t1
+sw        $t2         40($sp)     
+#load     $v0         tmp@113     
+lw        $v0         40($sp)     
+jr        $ra                     
+                                  
+main:                             
+#define   i.1                     
+li        $t0         2           
+sw        $t0         0($sp)      
+#define   j.1                     
+li        $t0         5           
+sw        $t0         4($sp)      
+#sw       i.1         0           @getInt
+li        $v0         5           
+syscall                           
+move      $t1         $v0         
+sw        $t1         0($sp)      
+#sw       j.1         0           @getInt
+li        $v0         5           
+syscall                           
+move      $t1         $v0         
+sw        $t1         4($sp)      
+#call     hhh                     
+#getpara  3           0           
+#load     $t0         3           
+li        $t0         3           
+sw        $t0         8($sp)      
+sw        $ra         12($sp)     
+addu      $sp         $sp         16
+jal       hhh                     
+lw        $ra         -4($sp)     
+sub       $sp         $sp         16
+sw        $v0         8($sp)      
+#call     hhh                     
+#getpara  tmp@178     0           
+#load     $t0         tmp@178     
+lw        $t0         8($sp)      
+sw        $t0         12($sp)     
+sw        $ra         16($sp)     
+addu      $sp         $sp         20
+jal       hhh                     
+lw        $ra         -4($sp)     
+sub       $sp         $sp         20
+sw        $v0         12($sp)     
+#sub      tmp@162     41440       tmp@173
+#load     $t0         41440       
+li        $t0         41440       
+#load     $t1         tmp@173     
+lw        $t1         12($sp)     
+subu      $t2         $t0         $t1
+sw        $t2         16($sp)     
+#addi     tmp@162     tmp@162     -10091
+#load     $t0         tmp@162     
+lw        $t0         16($sp)     
+addi      $t2         $t0         -10091
+sw        $t2         16($sp)     
+#sw       j.1         0           tmp@162
+#load     $t1         tmp@162     
+lw        $t1         16($sp)     
+sw        $t1         4($sp)      
+#subi     tmp@246     0           5
+#load     $t0         0           
+li        $t0         0           
+subi      $t2         $t0         5
+sw        $t2         24($sp)     
+#sub      tmp@244     0           tmp@246
+#load     $t0         0           
+li        $t0         0           
+#load     $t1         tmp@246     
+lw        $t1         24($sp)     
+subu      $t2         $t0         $t1
+sw        $t2         28($sp)     
+#define   k.1                     
+lw        $t0         28($sp)     
+sw        $t0         32($sp)     
+#define   n.1                     
+li        $t0         10          
+sw        $t0         36($sp)     
+                                  
+$Cond_15:                         
+#mul      tmp@298     tmp@301     tmp@304
+#load     $t0         tmp@301     
+#load     $t0         k.1         
+lw        $t0         32($sp)     
+#load     $t1         tmp@304     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         40($sp)     
+#mul      tmp@298     tmp@298     tmp@307
+#load     $t0         tmp@298     
+lw        $t0         40($sp)     
+#load     $t1         tmp@307     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         40($sp)     
+#mul      tmp@298     tmp@298     tmp@310
+#load     $t0         tmp@298     
+lw        $t0         40($sp)     
+#load     $t1         tmp@310     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         40($sp)     
+#mul      tmp@298     tmp@298     tmp@313
+#load     $t0         tmp@298     
+lw        $t0         40($sp)     
+#load     $t1         tmp@313     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         40($sp)     
+#mul      tmp@298     tmp@298     tmp@316
+#load     $t0         tmp@298     
+lw        $t0         40($sp)     
+#load     $t1         tmp@316     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         40($sp)     
+#lss      tmp@317     tmp@296     tmp@298
+#load     $t0         tmp@296     
+#load     $t0         n.1         
+lw        $t0         36($sp)     
+#load     $t1         tmp@298     
+lw        $t1         40($sp)     
+slt       $t2         $t0         $t1
+sw        $t2         60($sp)     
+#neqz     tmp@318     tmp@317     
+#load     $t0         tmp@317     
+lw        $t0         60($sp)     
+seq       $t2         $0          $t0
+li        $t3         1           
+sub       $t2         $t3         $t2
+sw        $t2         64($sp)     
+#load     $t0         tmp@318     
+lw        $t0         64($sp)     
+beq       $t0         $0          $Cond_18
+                                  
+$Cond_17:                         
+#mul      tmp@324     tmp@327     tmp@330
+#load     $t0         tmp@327     
+#load     $t0         d.0         
+lw        $t0         d.0         
+#load     $t1         tmp@330     
+#load     $t1         d.0         
+lw        $t1         d.0         
+mul       $t2         $t0         $t1
+sw        $t2         68($sp)     
+#load     $t1         tmp@324     
+lw        $t1         68($sp)     
+mul       $t2         $t1         -776530087
+mfhi      $t2                     
+add       $t2         $t1         $t2
+sra       $t2         $t2         13
+slt       $t3         $t1         $0
+neg       $t3         $t3         
+subu      $t3         $t2         $t3
+mul       $t3         $t3         10000
+subu      $t3         $t1         $t3
+sw        $t3         68($sp)     
+#sw       d.0         0           tmp@324
+#load     $t1         tmp@324     
+lw        $t1         68($sp)     
+sw        $t1         d.0($0)     
+#addi     tmp@336     tmp@340     1
+#load     $t0         tmp@340     
+#load     $t0         n.1         
+lw        $t0         36($sp)     
+addi      $t2         $t0         1
+sw        $t2         76($sp)     
+#sw       n.1         0           tmp@336
+#load     $t1         tmp@336     
+lw        $t1         76($sp)     
+sw        $t1         36($sp)     
+                                  
+$WHILE_22:                        
+                                  
+$Cond_23:                         
+#mul      tmp@354     tmp@357     tmp@360
+#load     $t0         tmp@357     
+#load     $t0         k.1         
+lw        $t0         32($sp)     
+#load     $t1         tmp@360     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         80($sp)     
+#mul      tmp@354     tmp@354     tmp@363
+#load     $t0         tmp@354     
+lw        $t0         80($sp)     
+#load     $t1         tmp@363     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         80($sp)     
+#mul      tmp@354     tmp@354     tmp@366
+#load     $t0         tmp@354     
+lw        $t0         80($sp)     
+#load     $t1         tmp@366     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         80($sp)     
+#mul      tmp@354     tmp@354     tmp@369
+#load     $t0         tmp@354     
+lw        $t0         80($sp)     
+#load     $t1         tmp@369     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         80($sp)     
+#mul      tmp@354     tmp@354     tmp@372
+#load     $t0         tmp@354     
+lw        $t0         80($sp)     
+#load     $t1         tmp@372     
+#load     $t1         k.1         
+lw        $t1         32($sp)     
+mul       $t2         $t0         $t1
+sw        $t2         80($sp)     
+#lss      tmp@373     tmp@352     tmp@354
+#load     $t0         tmp@352     
+#load     $t0         n.1         
+lw        $t0         36($sp)     
+#load     $t1         tmp@354     
+lw        $t1         80($sp)     
+slt       $t2         $t0         $t1
+sw        $t2         100($sp)    
+#neqz     tmp@374     tmp@373     
+#load     $t0         tmp@373     
+lw        $t0         100($sp)    
+seq       $t2         $0          $t0
+li        $t3         1           
+sub       $t2         $t3         $t2
+sw        $t2         104($sp)    
+#load     $t0         tmp@374     
+lw        $t0         104($sp)    
+#load     $t1         1           
+li        $t1         1           
+beq       $t0         $t1         $Cond_17
+                                  
+$Cond_18:                         
+                                  
+$WHILE_END_22:                        
+#print    tmp@380                 
+#load     $a0         tmp@380     
+#load     $a0         i.1         
+lw        $a0         0($sp)      
+addiu     $v0         $0          1
+syscall                           
+#print    ,                       
+addiu     $v0         $0          4
+la        $a0         .str0       
+syscall                           
+#print    tmp@385                 
+#load     $a0         tmp@385     
+#load     $a0         j.1         
+lw        $a0         4($sp)      
+addiu     $v0         $0          1
+syscall                           
+#print    ,                       
+addiu     $v0         $0          4
+la        $a0         .str1       
+syscall                           
+#print    tmp@390                 
+#load     $a0         tmp@390     
+#load     $a0         k.1         
+lw        $a0         32($sp)     
+addiu     $v0         $0          1
+syscall                           
+#print    \n                      
+addiu     $v0         $0          11
+li        $a0         10          
+syscall                           
+li        $v0         10          
+syscall                           

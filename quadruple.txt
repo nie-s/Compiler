@@ -1,0 +1,133 @@
+LABEL     GLOBAL:                                 
+DEFINE    d.0                 0                   0
+ASS_CON   d.0                 4                   
+D_END                                             
+LABEL     GLOBAL_END:                             
+FUNC_hhh:                                         
+RECOVER   i.1                 0                   0
+LVAL      tmp@19              i.1                 
+LVAL      tmp@22              i.1                 
+MUL       tmp@16              tmp@19              tmp@22
+DEFINE    c.1                 0                   0
+ASS       c.1                 tmp@16              
+D_END                                             
+LABEL     $Cond_1:                                
+LVAL      tmp@47              i.1                 
+EQ        tmp@53              tmp@47              1
+BEQZ      tmp@53              $Cond_3             
+LABEL     $Cond_2:                                
+RET       1                                       
+JR                                                
+J         $Cond_4                                 
+LABEL     $Cond_3:                                
+LABEL     $Cond_4:                                
+LABEL     $Cond_8:                                
+LVAL      tmp@85              i.1                 
+EQ        tmp@91              tmp@85              2
+BEQZ      tmp@91              $Cond_10            
+LABEL     $Cond_9:                                
+RET       2                                       
+JR                                                
+J         $Cond_11                                
+LABEL     $Cond_10:                               
+LABEL     $Cond_11:                               
+LVAL      tmp@106             c.1                 
+LVAL      tmp@109             c.1                 
+MUL       tmp@103             tmp@106             tmp@109
+MOD       tmp@103             tmp@103             10
+SW        c.1                 0                   tmp@103
+LVAL      tmp@122             i.1                 
+SUBI      tmp@118             tmp@122             1
+PARA      tmp@118             0                   0
+CALL      hhh                 1                   
+FUNCRET   tmp@115                                 
+LVAL      tmp@134             i.1                 
+SUBI      tmp@130             tmp@134             2
+PARA      tmp@130             0                   0
+CALL      hhh                 1                   
+FUNCRET   tmp@127                                 
+ADD       tmp@113             tmp@115             tmp@127
+RET       tmp@113                                 
+JR                                                
+F_END:                                            
+FUNC_main:                                        
+DEFINE    i.1                 0                   0
+ASS       i.1                 2                   
+D_END                                             
+DEFINE    j.1                 0                   0
+ASS       j.1                 5                   
+D_END                                             
+SW        i.1                 0                   @getInt
+SW        j.1                 0                   @getInt
+PARA      3                   0                   0
+CALL      hhh                 1                   
+FUNCRET   tmp@178                                 
+PARA      tmp@178             0                   0
+CALL      hhh                 1                   
+FUNCRET   tmp@173                                 
+SUB       tmp@162             41440               tmp@173
+ADDI      tmp@162             tmp@162             -10091
+SW        j.1                 0                   tmp@162
+SUBI      tmp@246             0                   5
+SUB       tmp@244             0                   tmp@246
+DEFINE    k.1                 0                   0
+ASS       k.1                 tmp@244             
+D_END                                             
+DEFINE    n.1                 0                   0
+ASS       n.1                 10                  
+D_END                                             
+LABEL     $Cond_15:                               
+LVAL      tmp@296             n.1                 
+LVAL      tmp@301             k.1                 
+LVAL      tmp@304             k.1                 
+MUL       tmp@298             tmp@301             tmp@304
+LVAL      tmp@307             k.1                 
+MUL       tmp@298             tmp@298             tmp@307
+LVAL      tmp@310             k.1                 
+MUL       tmp@298             tmp@298             tmp@310
+LVAL      tmp@313             k.1                 
+MUL       tmp@298             tmp@298             tmp@313
+LVAL      tmp@316             k.1                 
+MUL       tmp@298             tmp@298             tmp@316
+LSS       tmp@317             tmp@296             tmp@298
+NEQZ      tmp@318             tmp@317             
+BEQZ      tmp@318             $Cond_18            
+LABEL     $Cond_17:                               
+LVAL      tmp@327             d.0                 
+LVAL      tmp@330             d.0                 
+MUL       tmp@324             tmp@327             tmp@330
+MOD       tmp@324             tmp@324             10000
+SW        d.0                 0                   tmp@324
+LVAL      tmp@340             n.1                 
+ADDI      tmp@336             tmp@340             1
+SW        n.1                 0                   tmp@336
+LABEL     $WHILE_22:                              
+LABEL     $Cond_23:                               
+LVAL      tmp@352             n.1                 
+LVAL      tmp@357             k.1                 
+LVAL      tmp@360             k.1                 
+MUL       tmp@354             tmp@357             tmp@360
+LVAL      tmp@363             k.1                 
+MUL       tmp@354             tmp@354             tmp@363
+LVAL      tmp@366             k.1                 
+MUL       tmp@354             tmp@354             tmp@366
+LVAL      tmp@369             k.1                 
+MUL       tmp@354             tmp@354             tmp@369
+LVAL      tmp@372             k.1                 
+MUL       tmp@354             tmp@354             tmp@372
+LSS       tmp@373             tmp@352             tmp@354
+NEQZ      tmp@374             tmp@373             
+BEQ       tmp@374             1                   $Cond_17
+LABEL     $Cond_18:                               
+LABEL     $WHILE_END_22:                          
+LVAL      tmp@380             i.1                 
+LVAL      tmp@385             j.1                 
+LVAL      tmp@390             k.1                 
+WI        tmp@380                                 
+WS        ,                                       
+WI        tmp@385                                 
+WS        ,                                       
+WI        tmp@390                                 
+WC        \n                                      
+EXIT                                              
+F_END:                                            
