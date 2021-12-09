@@ -20,7 +20,6 @@ public class GrammarAnalyzer {
     int loopCnt = 0;
     int currentLayer = 0;
     int idCounter = 0;
-    int tmpCnt = 0;
     int labelCnt = 0;
     int currentWhile = 0;
     int condCnt = 0;
@@ -450,7 +449,7 @@ public class GrammarAnalyzer {
                     ast.addNode(stmtId, ast.new Stmt(1, currentLine));
                     ast.addChild(stmtId, lValId);
                     ast.addChild(stmtId, expId);
-                    semanticAnalyzer.sw(ident + "." + layer, shift_local, "tmp@" + expId);
+                    semanticAnalyzer.sw(ident + "." + layer, shift_local, expId);
                 } else {
                     ast.addNode(stmtId, ast.new Stmt(9, currentLine));
                     ast.addChild(stmtId, lValId);
@@ -676,15 +675,12 @@ public class GrammarAnalyzer {
         int i = 1;
         int nextLabel = 0;
         int cnt = ast.ast.get(list.get(0)).size();
-        int local = start + 1;
-        if (condCnt == 1) {
-            nextLabel = isWhileEnd ? end - 1 : end; //只有一个条件 TODO whileEnd 涵义？
-            ast.addChild(parent, lAndExp_2(nextLabel, ast.ast.get(list.get(0)).size(), true));
-        } else if (i == ast.ast.get(lastcondition).size()) {
-            nextLabel = end;
+
+        if (i == ast.ast.get(lastcondition).size()) {  //如果只有一个或条件
+            nextLabel = isWhileEnd ? end - 1 : end; //如果是do while后面的条件， 成立则跳到do；如果不是 不成立则跳到最后
             ast.addChild(parent, lAndExp_2(nextLabel, ast.ast.get(list.get(0)).size(), true));
         } else {
-            nextLabel = local + cnt;
+            nextLabel = start + cnt;  //下一个或的位置
             ast.addChild(parent, lAndExp_2(nextLabel, ast.ast.get(list.get(0)).size(), false));
         }
         while (lexicalAnalyzer.checkOr()) {
@@ -692,14 +688,14 @@ public class GrammarAnalyzer {
             GETWORD();
             GETWORD();
             i++;
-            cnt += ast.ast.get(list.get(i - 1)).size();
+            cnt = ast.ast.get(list.get(i - 1)).size();
             if (i == ast.ast.get(lastcondition).size()) {
-                nextLabel = end; //如果是最后一个或条件
+                nextLabel = isWhileEnd ? end - 1 : end; //如果是最后一个或条件
             } else {
-                nextLabel = local + cnt; //下一个或条件
+                nextLabel = start + cnt; //下一个或条件
             }
-            boolean last = (i == condCnt);
-            int land = lAndExp_2(nextLabel, ast.ast.get(list.get(i - 1)).size(), last);
+            boolean last = (i == ast.ast.get(lastcondition).size());
+            int land = lAndExp_2(nextLabel, cnt, last);
             ast.addChild(parent, land);
         }
         PRINT("<LOrExp>");
@@ -733,10 +729,10 @@ public class GrammarAnalyzer {
         if (last && j != lastand - 1 && isWhileEnd) {
             semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
         } else if (last && j == lastand - 1 && isWhileEnd) {
-            semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + nextLabel);
+            semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
         } else if (last && j == lastand - 1) {
             semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
-        } else if (isWhileEnd || j == lastand - 1) {
+        } else if (j == lastand - 1) {
             semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
         } else {
             semanticAnalyzer.beqz(eqExpId, "$Cond_" + nextLabel);
@@ -754,9 +750,11 @@ public class GrammarAnalyzer {
 
             if (last && j != lastand - 1 && isWhileEnd) {
                 semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
+            } else if (last && j == lastand - 1 && isWhileEnd) {
+                semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
             } else if (last && j == lastand - 1) {
                 semanticAnalyzer.beqz(eqExpId, "$Cond_" + end);
-            } else if (isWhileEnd || j == lastand - 1) {
+            } else if (j == lastand - 1) {
                 semanticAnalyzer.beq(eqExpId, "1", "$Cond_" + (end - 1));
             } else {
                 semanticAnalyzer.beqz(eqExpId, "$Cond_" + nextLabel);
@@ -785,15 +783,15 @@ public class GrammarAnalyzer {
                 relExpId = relExp(eq);
                 ast.addChild(eqExpId, relExpId);
                 if (eq.equals("==")) {
-                    semanticAnalyzer.eq(tmpCnt, last, relExpId);
+                    semanticAnalyzer.eq(idCounter, last, relExpId);
                 } else {
-                    semanticAnalyzer.neq(tmpCnt, last, relExpId);
+                    semanticAnalyzer.neq(idCounter, last, relExpId);
                 }
-                last = tmpCnt++;
+                last = idCounter++;
             }
         } else {
-            semanticAnalyzer.neqz(tmpCnt, last);
-            last = tmpCnt;
+            semanticAnalyzer.neqz(idCounter, last);
+            last = idCounter;
         }
 
         PRINT("<EqExp>");
@@ -817,16 +815,16 @@ public class GrammarAnalyzer {
             addExpId = addExp(op, false);
             ast.addChild(relExpId, addExpId);
             if (op.equals("<")) {
-                semanticAnalyzer.lss(tmpCnt, last, addExpId);
+                semanticAnalyzer.lss(idCounter, last, addExpId);
             } else if (op.equals(">")) {
-                semanticAnalyzer.grt(tmpCnt, last, addExpId);
+                semanticAnalyzer.grt(idCounter, last, addExpId);
             } else if (op.equals("<=")) {
-                semanticAnalyzer.leq(tmpCnt, last, addExpId);
+                semanticAnalyzer.leq(idCounter, last, addExpId);
             } else if (op.equals(">=")) {
-                semanticAnalyzer.geq(tmpCnt, last, addExpId);
+                semanticAnalyzer.geq(idCounter, last, addExpId);
             }
 
-            last = tmpCnt++;
+            last = idCounter++;
         }
         relExpId = last;
 
@@ -1129,6 +1127,7 @@ public class GrammarAnalyzer {
 
 
         int last = mulExpId;
+
         while (lexicalAnalyzer.checkUnaryAdd()) {
             PRINT("<AddExp>");
             GETWORD();
@@ -1139,10 +1138,11 @@ public class GrammarAnalyzer {
             ast.addChild(addExpId, mulExpId);
             if (!isConst) {
                 if (unaryAdd.equals("+")) {
-                    semanticAnalyzer.add(last, last, mulExpId);
+                    semanticAnalyzer.add(addExpId, last, mulExpId);
                 } else {
-                    semanticAnalyzer.sub(last, last, mulExpId);
+                    semanticAnalyzer.sub(addExpId, last, mulExpId);
                 }
+                last = addExpId;
             } else {
                 if (unaryAdd.equals("+")) {
                     ast.map.get(last).value += (ast.map.get(mulExpId)).value;
@@ -1150,7 +1150,9 @@ public class GrammarAnalyzer {
                     ast.map.get(last).value -= (ast.map.get(mulExpId)).value;
                 }
             }
+
         }
+
         PRINT("<AddExp>");
         return last;
 
@@ -1175,12 +1177,13 @@ public class GrammarAnalyzer {
             ast.addChild(mulExpId, unaryExpId);
             if (!isConst) {
                 if (cal.equals("*")) {
-                    semanticAnalyzer.mul(last, last, unaryExpId);
+                    semanticAnalyzer.mul(mulExpId, last, unaryExpId);
                 } else if (cal.equals("/")) {
-                    semanticAnalyzer.div(last, last, unaryExpId);
+                    semanticAnalyzer.div(mulExpId, last, unaryExpId);
                 } else {
-                    semanticAnalyzer.mod(last, last, unaryExpId);
+                    semanticAnalyzer.mod(mulExpId, last, unaryExpId);
                 }
+                last = mulExpId;
             } else {
                 int value = (ast.map.get(unaryExpId)).value;
                 if (cal.equals("*")) {
@@ -1220,7 +1223,7 @@ public class GrammarAnalyzer {
                 checkRparent();
             }
             semanticAnalyzer.call(ident, getFuncParamsCnt(ident));
-            semanticAnalyzer.funcRet("tmp@" + unaryExpId);
+            semanticAnalyzer.funcRet(unaryExpId);
         } else if (currentWord.isUnaryOp()) {
             unaryOp();
             String unaryOp = currentWord.getValue();
@@ -1332,25 +1335,26 @@ public class GrammarAnalyzer {
             shift_lval = String.valueOf(shift);
         } else if (!isConst && loadword) {
             if (dimension == 2) {
-                semanticAnalyzer.mul(tmpCnt++, rangx, String.valueOf(getArrayLength(name)));
-                semanticAnalyzer.add(tmpCnt++, tmpCnt - 2, rangy);
-                semanticAnalyzer.sll(tmpCnt++, tmpCnt - 2, 2);
-                semanticAnalyzer.lw(lValId, name + "." + layer, tmpCnt - 1);
+                semanticAnalyzer.mul(idCounter++, rangx, String.valueOf(getArrayLength(name)));
+                semanticAnalyzer.add(idCounter++, idCounter - 2, rangy);
+                semanticAnalyzer.sll(idCounter++, idCounter - 2, 2);
+                semanticAnalyzer.lw(lValId, name + "." + layer, idCounter - 1);
             } else if (dimension == 1) {
-                semanticAnalyzer.sll(tmpCnt++, rangx, 2);
-                semanticAnalyzer.lw(lValId, name + "." + layer, tmpCnt - 1);
+                semanticAnalyzer.sll(idCounter++, rangx, 2);
+                semanticAnalyzer.lw(lValId, name + "." + layer, idCounter - 1);
             } else {
-                semanticAnalyzer.lw(lValId, name + "." + layer);
+                semanticAnalyzer.lval(lValId, name + "." + layer);
+//                semanticAnalyzer.lw(lValId, name + "." + layer);
             }
         } else if (!isConst) {
             if (dimension == 2) {
-                semanticAnalyzer.mul(tmpCnt++, rangx, String.valueOf(getArrayLength(name)));
-                semanticAnalyzer.add(tmpCnt++, tmpCnt - 2, rangy);
-                semanticAnalyzer.sll(tmpCnt++, tmpCnt - 2, 2);
-                shift_lval = "tmp@" + (tmpCnt - 1);
+                semanticAnalyzer.mul(idCounter++, rangx, String.valueOf(getArrayLength(name)));
+                semanticAnalyzer.add(idCounter++, idCounter - 2, rangy);
+                semanticAnalyzer.sll(idCounter++, idCounter - 2, 2);
+                shift_lval = "tmp@" + (idCounter - 1);
             } else if (dimension == 1) {
-                semanticAnalyzer.sll(tmpCnt++, rangx, 2);
-                shift_lval = "tmp@" + (tmpCnt - 1);
+                semanticAnalyzer.sll(idCounter++, rangx, 2);
+                shift_lval = "tmp@" + (idCounter - 1);
             } else {
                 shift_lval = "0";
             }
@@ -1419,7 +1423,7 @@ public class GrammarAnalyzer {
                 GETWORD();  //[
                 shift = exp();
                 GETWORD();  //]
-                semanticAnalyzer.para(funcName + "." + layer + "$tmp@" + shift, dim, rangey);
+                semanticAnalyzer.para(funcName + "." + layer ,shift, dim, rangey);
             } else {
                 semanticAnalyzer.para(funcName + "." + layer, dim, rangey);
             }
@@ -1446,8 +1450,8 @@ public class GrammarAnalyzer {
     }
 
     public void number(int id, int num) {
-        semanticAnalyzer.li(id, String.valueOf(num));
-
+//        semanticAnalyzer.li(id, String.valueOf(num));
+        semanticAnalyzer.number(id, String.valueOf(num));
     }
 
     public void ERROR(int errorCode, int errorLine, String errorMessage) {

@@ -18,7 +18,11 @@ public class MipsGenerator {
     HashMap<String, Integer> varDim = new HashMap<>();
     HashMap<String, Integer> varReal = new HashMap<>();
 
+    HashMap<String, String> lvalMap = new HashMap<>();
+
     Stack<Quadruple> funcStack = new Stack<>();
+
+    Optimizer optimizer = new Optimizer();
 
     int index = 0;
     int strCnt = 0;
@@ -131,7 +135,7 @@ public class MipsGenerator {
             recover(4 * (2 + i), quadruple.dst,
                     quadruple.src1, quadruple.src2);
         }
-        //TODO
+
         while (!quadruples.get(index).op.equals("F_END:")) {
             String op = quadruples.get(index).op;
             String dst = quadruples.get(index).dst;
@@ -160,8 +164,7 @@ public class MipsGenerator {
                 case "ADD":
                 case "SUB":
                 case "MUL":
-                case "DIV":
-                case "MOD":
+
                 case "EQ":
                 case "LSS":
                 case "LEQ":
@@ -170,9 +173,15 @@ public class MipsGenerator {
                 case "NEQ":
                     cal_two(op, dst, src1, src2);
                     break;
+                case "DIV":
+                case "MOD":
+                    div_mod(op, dst, src1, src2);
+                    break;
                 case "NEQZ":
                 case "NOT":
                 case "SLL":
+                case "ADDI":
+                case "SUBI":
                     cal_one(op, dst, src1, src2);
                     break;
                 case "LABEL":
@@ -213,6 +222,10 @@ public class MipsGenerator {
                 case "RET":
                     load("$v0", dst);
                     break;
+                case "CONST":
+                    number(dst, src1);
+                case "LVAL":
+                    lval(dst, src1);
                 default:
                     break;
 
@@ -224,7 +237,7 @@ public class MipsGenerator {
     }
 
     public void callFunc(int dim) {
-        print_mips(new Mips("#call", quadruples.get(index).dst, "", ""));
+        if (debug) print_mips(new Mips("#call", quadruples.get(index).dst, "", ""));
         int size = funcStack.size();
         int lastSP = currentSP;
 
@@ -234,7 +247,7 @@ public class MipsGenerator {
             String dst = quadruple.dst;
             String real = quadruple.src1;
             int rangey = Integer.parseInt(quadruple.src2);
-            print_mips(new Mips("#getpara", dst, real, ""));
+            if (debug) print_mips(new Mips("#getpara", dst, real, ""));
 
             if (real.equals("0")) {
                 load("$t0", dst);
@@ -354,8 +367,21 @@ public class MipsGenerator {
                 }
             } else {
                 while (!quadruples.get(index).isDefineEnd()) {
-                    int pos = varTable.get(quadruples.get(index).src1);
-                    print_mips(new Mips("lw", "$t0", pos + "($sp)", ""));
+                    if (isNumber(quadruples.get(index).src1)) {
+                        print_mips(new Mips("li", "$t0", quadruples.get(index).src1, ""));
+                    } else {
+                        String src = quadruples.get(index).src1;
+                        if (lvalMap.containsKey(src)) {
+                            src = lvalMap.get(src);
+                        }
+                        if (global.contains(src)) {
+                            print_mips(new Mips("lw", "$t0", src, ""));
+                        } else {
+                            int pos = varTable.get(quadruples.get(index).src1);
+                            print_mips(new Mips("lw", "$t0", pos + "($sp)", ""));
+                        }
+                    }
+
                     print_mips(new Mips("sw", "$t0", currentSP + "($sp)", ""));
                     currentSP += 4;
                     index++;
@@ -397,8 +423,16 @@ public class MipsGenerator {
         currentSP += 4;
     }
 
+    public void lval(String dst, String src) {
+        this.lvalMap.put(dst, src);
+        varTable.put(dst, varTable.get(src));
+        varType.put(dst, 0);
+        varDim.put(dst, 0);
+        varReal.put(dst, 0);
+    }
+
     public void load(String dst, String src) {
-        print_mips(new Mips("#load", dst, src, ""));
+        if (debug) print_mips(new Mips("#load", dst, src, ""));
         if (global.contains(src)) {
             print_mips(new Mips("lw", dst, src, ""));
         } else if (isNumber(src)) {
@@ -407,6 +441,8 @@ public class MipsGenerator {
             if (!src.equals(dst)) {
                 print_mips(new Mips("move", dst, src, ""));
             }
+        } else if (lvalMap.containsKey(src)) {
+            load(dst, lvalMap.get(src));
         } else if (varType.get(src) == 1) {
             load_address("$t4", src);
             print_mips(new Mips("lw", "$t4", "($t4)", ""));
@@ -418,7 +454,7 @@ public class MipsGenerator {
     }
 
     public void load(String dst, String src1, String src2) {
-        print_mips(new Mips("#load", dst, src1, src2));
+        if (debug) print_mips(new Mips("#load", dst, src1, src2));
         load("$t3", src2);
 
         if (global.contains(src1)) {
@@ -435,7 +471,7 @@ public class MipsGenerator {
     }
 
     public void load_address(String dst, String src) {
-        print_mips(new Mips("#load adrress", dst, src, ""));
+        if (debug) print_mips(new Mips("#load adrress", dst, src, ""));
 
         if (global.contains(src)) {
             print_mips(new Mips("la", dst, src, ""));
@@ -458,9 +494,6 @@ public class MipsGenerator {
 
     public void sw(String dst, String src1, String src2) {
         if (debug) print_mips(new Mips("#sw", dst, src1, src2));
-
-        load("$t0", src1);
-
         if (src2.equals("@getInt")) {   //输入
             print_mips(new Mips("li", "$v0", "5", ""));
             print_mips(new Mips("syscall"));
@@ -469,26 +502,49 @@ public class MipsGenerator {
             load("$t1", src2);
         }
 
-        if (global.contains(dst)) {
-            print_mips(new Mips("sw", "$t1", dst + "($t0)", ""));
-        } else {
-            int pos = varTable.get(dst);
-            if (pos < 0) {
-                pos = -pos;
-                print_mips(new Mips("subiu", "$t2", "$sp", String.valueOf(pos)));
-                if (varDim.get(dst) != 0) {
-                    print_mips(new Mips("lw", "$t2", "($t2)", ""));
-                }
-                print_mips(new Mips("addu", "$t2", "$t0", "$t2"));
-            } else {
-                print_mips(new Mips("addiu", "$t2", "$sp", String.valueOf(pos)));
-                print_mips(new Mips("addu", "$t2", "$t0", "$t2"));
-            }
-            print_mips(new Mips("sw", "$t1", "($t2)", ""));
-        }
 
+        if (src1.equals("0")) {
+            if (global.contains(dst)) {
+                print_mips(new Mips("sw", "$t1", dst + "($0)", ""));
+            } else {
+                int pos = varTable.get(dst);
+                if (pos < 0) {
+                    pos = -pos;
+                    print_mips(new Mips("subiu", "$t2", "$sp", String.valueOf(pos)));
+                    if (varDim.get(dst) != 0) {
+                        print_mips(new Mips("lw", "$t2", "($t2)", ""));
+                    }
+                    print_mips(new Mips("sw", "$t1", "($t2)", ""));
+                } else {
+                    print_mips(new Mips("sw", "$t1", String.valueOf(pos) + "($sp)", ""));
+                }
+            }
+        } else {
+            load("$t0", src1);
+
+            if (global.contains(dst)) {
+                print_mips(new Mips("sw", "$t1", dst + "($t0)", ""));
+            } else {
+                int pos = varTable.get(dst);
+                if (pos < 0) {
+                    pos = -pos;
+                    print_mips(new Mips("subiu", "$t2", "$sp", String.valueOf(pos)));
+                    if (varDim.get(dst) != 0) {
+                        print_mips(new Mips("lw", "$t2", "($t2)", ""));
+                    }
+                    print_mips(new Mips("addu", "$t2", "$t0", "$t2"));
+                } else {
+                    print_mips(new Mips("addiu", "$t2", "$sp", String.valueOf(pos)));
+                    print_mips(new Mips("addu", "$t2", "$t0", "$t2"));
+                }
+                print_mips(new Mips("sw", "$t1", "($t2)", ""));
+            }
+        }
     }
 
+    public void number(String dst, String src) {
+
+    }
 
     public void cal_two(String op, String dst, String src1, String src2) {
         if (debug) print_mips(new Mips("#" + op.toLowerCase(), dst, src1, src2));
@@ -553,9 +609,25 @@ public class MipsGenerator {
             case "NEQZ":
                 neqz();
                 break;
+            case "ADDI":
+                print_mips(new Mips("addi", "$t2", "$t0", src2));
+                break;
+            case "SUBI":
+                print_mips(new Mips("subi", "$t2", "$t0", src2));
+                break;
         }
 
         save("$t2", dst);
+    }
+
+    public void div_mod(String op, String dst, String src1, String src2) {
+        if (isNumber(src2)) {
+            load("$t1", src1);
+            optimizer.div_mod(src2, mips, op.equals("MOD"));
+            save("$t3", dst);
+        } else {
+            cal_two(op, dst, src1, src2);
+        }
     }
 
     public void save(String d, String dst) {

@@ -1,10 +1,13 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class SemanticAnalyzer {
     ArrayList<Quadruple> quadruples = new ArrayList<>();
     ArrayList<Quadruple> tmp = new ArrayList<>();
+    HashMap<Integer, String> numbers = new HashMap<>();
+
     boolean output = true;
 
     public void addQuadruple(String op, String dst, String src1, String src2) {
@@ -36,14 +39,13 @@ public class SemanticAnalyzer {
     }
 
     public void assign(String name, int id) {
-        addQuadruple_tmp("ASS", name, "tmp@" + id, "");
+        addQuadruple_tmp("ASS", name, checkNumber(id), "");
     }
 
     public void assign_recover() {
         quadruples.addAll(tmp);
         tmp.clear();
     }
-
 
     public void conval(String dst, int value) {
         addQuadruple_tmp("ASS_CON", dst, String.valueOf(value), "");
@@ -55,47 +57,68 @@ public class SemanticAnalyzer {
     }
 
     public void add(int dst, int src1, int src2) {
-        addQuadruple("ADD", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        if (numbers.containsKey(src2) && numbers.containsKey(src1)) {
+            numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) + Integer.parseInt(numbers.get(src2))));
+        } else if (numbers.containsKey(src2)) {
+            addQuadruple("ADDI", "tmp@" + dst, checkNumber(src1), String.valueOf(numbers.get(src2)));
+        } else {
+            addQuadruple("ADD", "tmp@" + dst, checkNumber(src1), "tmp@" + src2);
+        }
     }
 
     public void sll(int dst, int src1, int src2) {
-        addQuadruple("SLL", "tmp@" + dst, "tmp@" + src1, String.valueOf(src2));
-    }
-
-    public void add(int dst, int src1, String src2) {
-        addQuadruple("ADD", "tmp@" + dst, "tmp@" + src1, src2);
-    }
-
-    public void add(int dst, String src1, String src2) {
-        addQuadruple("ADD", "tmp@" + dst, src1, src2);
+        addQuadruple("SLL", "tmp@" + dst, checkNumber(src1), String.valueOf(src2));
     }
 
     public void sub(int dst, int src1, int src2) {
-        addQuadruple("SUB", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        if (numbers.containsKey(src2) && numbers.containsKey(src1)) {
+            numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) - Integer.parseInt(numbers.get(src2))));
+        } else if (numbers.containsKey(src2)) {
+            addQuadruple("SUBI", "tmp@" + dst, checkNumber(src1), String.valueOf(numbers.get(src2)));
+        } else {
+            addQuadruple("SUB", "tmp@" + dst, checkNumber(src1), "tmp@" + src2);
+
+        }
     }
 
     public void sub(int dst, String src1, int src2) {
-        addQuadruple("SUB", "tmp@" + dst, src1, "tmp@" + src2);
+        if (numbers.containsKey(src2)) {
+            addQuadruple("SUBI", "tmp@" + dst, src1, String.valueOf(numbers.get(src2)));
+        } else {
+            addQuadruple("SUB", "tmp@" + dst, src1, checkNumber(src2));
+        }
     }
 
     public void mul(int dst, int src1, int src2) {
-        addQuadruple("MUL", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        if (numbers.containsKey(src2) && numbers.containsKey(src1)) {
+            numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) * Integer.parseInt(numbers.get(src2))));
+        } else {
+            addQuadruple("MUL", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        }
     }
 
     public void div(int dst, int src1, int src2) {
-        addQuadruple("DIV", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        if (numbers.containsKey(src2) && numbers.containsKey(src1)) {
+            numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) / Integer.parseInt(numbers.get(src2))));
+        } else {
+            addQuadruple("DIV", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        }
     }
 
     public void mod(int dst, int src1, int src2) {
-        addQuadruple("MOD", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        if (numbers.containsKey(src2) && numbers.containsKey(src1)) {
+            numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) % Integer.parseInt(numbers.get(src2))));
+        } else {
+            addQuadruple("MOD", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        }
     }
 
     public void mul(int dst, int src1, String src2) {
-        addQuadruple("MUL", "tmp@" + dst, "tmp@" + src1, src2);
+        addQuadruple("MUL", "tmp@" + dst, checkNumber(src1), src2);
     }
 
     public void not(int dst, int src) {
-        addQuadruple("NOT", "tmp@" + dst, "tmp@" + src, "");
+        addQuadruple("NOT", "tmp@" + dst, checkNumber(src), "");
     }
 
     public void jr() {
@@ -103,7 +126,7 @@ public class SemanticAnalyzer {
     }
 
     public void ret(int src) {
-        addQuadruple("RET", "tmp@" + src, "", "");
+        addQuadruple("RET", checkNumber(src), "", "");
     }
 
     public void printChar(String c) {
@@ -115,7 +138,7 @@ public class SemanticAnalyzer {
     }
 
     public void printInt(int num) {
-        addQuadruple("WI", "tmp@" + String.valueOf(num), "", "");
+        addQuadruple("WI", checkNumber(num), "", "");
     }
 
 
@@ -140,7 +163,11 @@ public class SemanticAnalyzer {
     }
 
     public void para(int src, int dim, int rangey) {
-        addQuadruple("PARA", "tmp@" + src, String.valueOf(dim), String.valueOf(rangey));
+        addQuadruple("PARA", checkNumber(src), String.valueOf(dim), String.valueOf(rangey));
+    }
+
+    public void para(String src, int shift, int dim, int rangey) {
+        addQuadruple("PARA", src + "$" + checkNumber(shift), String.valueOf(dim), String.valueOf(rangey));
     }
 
     public void para(String src, int dim, int rangey) {
@@ -151,8 +178,8 @@ public class SemanticAnalyzer {
         addQuadruple("CALL", label, String.valueOf(dim), "");
     }
 
-    public void funcRet(String dst) {
-        addQuadruple("FUNCRET", dst, "", "");
+    public void funcRet(int dst) {
+        addQuadruple("FUNCRET", "tmp@" + dst, "", "");
     }
 
     public void exit() {
@@ -168,50 +195,52 @@ public class SemanticAnalyzer {
     }
 
     public void eq(int dst, int src1, int src2) {
-        addQuadruple("EQ", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        addQuadruple("EQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
     }
 
     public void neq(int dst, int src1, int src2) {
-        addQuadruple("NEQ", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
-    }
-    public void neqz(int dst, int src1) {
-        addQuadruple("NEQZ", "tmp@" + dst, "tmp@" + src1,"");
+        addQuadruple("NEQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
     }
 
-    public void seqz(int dst, int src1) {
-        addQuadruple("SEQZ", "tmp@" + dst, "tmp@" + src1, "");
+    public void neqz(int dst, int src1) {
+        addQuadruple("NEQZ", "tmp@" + dst, checkNumber(src1), "");
     }
 
     public void lss(int dst, int src1, int src2) {
-        addQuadruple("LSS", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        addQuadruple("LSS", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
     }
 
     public void leq(int dst, int src1, int src2) {
-        addQuadruple("LEQ", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        addQuadruple("LEQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
     }
 
     public void grt(int dst, int src1, int src2) {
-        addQuadruple("GRT", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        addQuadruple("GRT", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
     }
 
     public void geq(int dst, int src1, int src2) {
-        addQuadruple("GEQ", "tmp@" + dst, "tmp@" + src1, "tmp@" + src2);
+        addQuadruple("GEQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
     }
 
-    public void li(int dst, String src) {
-        addQuadruple("LI", "tmp@" + dst, src, "");
-    }
-
-    public void lw(int dst, String src) {
-        addQuadruple("LW", "tmp@" + dst, src, "");
+    public void number(int dst, String src) {
+        numbers.put(dst, src);
+//        addQuadruple("CONST", "tmp@" + dst, src, "");
     }
 
     public void lw(int dst, String src, int shift) {
         addQuadruple("LW", "tmp@" + dst, src, "tmp@" + shift);
     }
 
+    public void lval(int dst, String src) {
+        addQuadruple("LVAL", "tmp@" + dst, src, "");
+    }
+
     public void sw(String dst, String shift, String src) {
         addQuadruple("SW", dst, shift, src);
+    }
+
+    public void sw(String dst, String shift, int src) {
+        addQuadruple("SW", dst, shift, checkNumber(src));
     }
 
     public void define(String name, int layer, int rangex, int rangey) {
@@ -220,6 +249,14 @@ public class SemanticAnalyzer {
 
     public void defineEnd() {
         addQuadruple("D_END", "", "", "");
+    }
+
+    public String checkNumber(int src) {
+        if (numbers.containsKey(src)) {
+            return numbers.get(src);
+        } else {
+            return "tmp@" + src;
+        }
     }
 }
 

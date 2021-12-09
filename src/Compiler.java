@@ -19,10 +19,13 @@ public class Compiler {
         grammarAnalyzer.analyse();
 //        exceptionHandler.output();
         semanticAnalyzer.output();
+//        ArrayList<Quadruple> midCode = optimizer.optimize();
+//        MipsGenerator mipsGenerator = new MipsGenerator(midCode);
         MipsGenerator mipsGenerator = new MipsGenerator(semanticAnalyzer.quadruples);
         mipsGenerator.analyse();
         mipsGenerator.output();
     }
+
 
     public static ArrayList<String> input() {
         ArrayList<String> lines = new ArrayList<>();
