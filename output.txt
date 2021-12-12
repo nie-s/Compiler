@@ -1,37 +1,165 @@
+CONSTTK const
 INTTK int
-IDENFR d
+IDENFR month_days
+LBRACK [
+INTCON 12
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+RBRACK ]
 ASSIGN =
-INTCON 4
+LBRACE {
+INTCON 31
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
 <ConstExp>
 <ConstInitVal>
-<VarDef>
+COMMA ,
+INTCON 28
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 31
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 30
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 31
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 30
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 31
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 31
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 30
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 31
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 30
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+COMMA ,
+INTCON 31
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<ConstExp>
+<ConstInitVal>
+RBRACE }
+<ConstInitVal>
+<ConstDef>
 SEMICN ;
-<VarDecl>
+<ConstDecl>
 INTTK int
 <FuncType>
-IDENFR hhh
+IDENFR get_days
 LPARENT (
 INTTK int
-IDENFR i
+IDENFR year
+<FuncFParam>
+COMMA ,
+INTTK int
+IDENFR month
+<FuncFParam>
+COMMA ,
+INTTK int
+IDENFR day
 <FuncFParam>
 <FuncFParams>
 RPARENT )
 LBRACE {
 INTTK int
-IDENFR c
+IDENFR flag
 ASSIGN =
-IDENFR i
-<LVal>
+INTCON 0
+<Number>
 <PrimaryExp>
 <UnaryExp>
-<MulExp>
-MULT *
+<AddExp>
+<Exp>
+<InitVal>
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
 IDENFR i
-<LVal>
+ASSIGN =
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<InitVal>
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR days
+ASSIGN =
+INTCON 0
+<Number>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
@@ -42,90 +170,58 @@ SEMICN ;
 <VarDecl>
 IFTK if
 LPARENT (
-IDENFR i
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<RelExp>
-<EqExp>
-EQL ==
-INTCON 1
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<RelExp>
-<EqExp>
-<LAndExp>
-<LOrExp>
-<Cond>
-RPARENT )
-LBRACE {
-RETURNTK return
-INTCON 1
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-SEMICN ;
-<Stmt>
-RBRACE }
-<Block>
-<Stmt>
-<Stmt>
-IFTK if
+NOT !
+<UnaryOp>
 LPARENT (
-IDENFR i
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<RelExp>
-<EqExp>
-EQL ==
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<RelExp>
-<EqExp>
-<LAndExp>
-<LOrExp>
-<Cond>
-RPARENT )
-LBRACE {
-RETURNTK return
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-SEMICN ;
-<Stmt>
-RBRACE }
-<Block>
-<Stmt>
-<Stmt>
-IDENFR c
-<LVal>
-ASSIGN =
-IDENFR c
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-IDENFR c
+IDENFR year
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
 MOD %
-INTCON 10
+INTCON 4
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+RPARENT )
+<PrimaryExp>
+<UnaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+AND &&
+LPARENT (
+IDENFR year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MOD %
+INTCON 100
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+RPARENT )
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+LBRACE {
+IDENFR flag
+<LVal>
+ASSIGN =
+INTCON 1
 <Number>
 <PrimaryExp>
 <UnaryExp>
@@ -133,10 +229,68 @@ INTCON 10
 <Exp>
 SEMICN ;
 <Stmt>
-RETURNTK return
-IDENFR hhh
+RBRACE }
+<Block>
+<Stmt>
+ELSETK else
+LBRACE {
+IFTK if
+LPARENT (
+IDENFR year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MOD %
+INTCON 400
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+EQL ==
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+LBRACE {
+IDENFR flag
+<LVal>
+ASSIGN =
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+WHILETK while
 LPARENT (
 IDENFR i
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+LSS <
+IDENFR month
 <LVal>
 <PrimaryExp>
 <UnaryExp>
@@ -147,28 +301,122 @@ INTCON 1
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
-<Exp>
-<FuncRParams>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
 RPARENT )
+LBRACE {
+IDENFR days
+<LVal>
+ASSIGN =
+IDENFR days
+<LVal>
+<PrimaryExp>
 <UnaryExp>
 <AddExp>
 PLUS +
-IDENFR hhh
-LPARENT (
+IDENFR month_days
+LBRACK [
 IDENFR i
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
-MINU -
-INTCON 2
+<Exp>
+RBRACK ]
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR i
+<LVal>
+ASSIGN =
+IDENFR i
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+PLUS +
+INTCON 1
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
 <Exp>
-<FuncRParams>
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+IDENFR days
+<LVal>
+ASSIGN =
+IDENFR days
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+PLUS +
+IDENFR day
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IFTK if
+LPARENT (
+IDENFR month
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+GRE >
+INTCON 2
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
 RPARENT )
+LBRACE {
+IDENFR days
+<LVal>
+ASSIGN =
+IDENFR days
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+PLUS +
+IDENFR flag
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+RETURNTK return
+IDENFR days
+<LVal>
+<PrimaryExp>
 <UnaryExp>
 <AddExp>
 <Exp>
@@ -183,20 +431,49 @@ LPARENT (
 RPARENT )
 LBRACE {
 INTTK int
-IDENFR i
-ASSIGN =
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-<InitVal>
+IDENFR groups
 <VarDef>
-COMMA ,
-IDENFR j
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR birth_year
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR birth_month
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR birth_day
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR cur_year
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR cur_month
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR cur_day
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR year
+<VarDef>
+SEMICN ;
+<VarDecl>
+INTTK int
+IDENFR live_days
 ASSIGN =
-INTCON 5
+INTCON 0
 <Number>
 <PrimaryExp>
 <UnaryExp>
@@ -206,266 +483,93 @@ INTCON 5
 <VarDef>
 SEMICN ;
 <VarDecl>
-IDENFR i
+IDENFR birth_year
 <LVal>
 ASSIGN =
-GETINTTK getint
-LPARENT (
-RPARENT )
-SEMICN ;
-<Stmt>
-IDENFR j
-<LVal>
-ASSIGN =
-GETINTTK getint
-LPARENT (
-RPARENT )
-SEMICN ;
-<Stmt>
-IDENFR j
-<LVal>
-ASSIGN =
-INTCON 7
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-INTCON 5923
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-DIV /
-INTCON 56
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-INTCON 56
+INTCON 1998
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
-MINU -
-IDENFR hhh
-LPARENT (
-IDENFR hhh
-LPARENT (
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR birth_month
+<LVal>
+ASSIGN =
 INTCON 3
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
 <Exp>
-<FuncRParams>
-RPARENT )
-<UnaryExp>
-<AddExp>
-<Exp>
-<FuncRParams>
-RPARENT )
-<UnaryExp>
-<AddExp>
-PLUS +
-LPARENT (
-INTCON 1
+SEMICN ;
+<Stmt>
+IDENFR birth_day
+<LVal>
+ASSIGN =
+INTCON 23
 <Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-PLUS +
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-MINU -
-LPARENT (
-INTCON 89
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-DIV /
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-INTCON 36
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-MINU -
-INTCON 53
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-RPARENT )
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-DIV /
-INTCON 1
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-INTCON 6
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-MINU -
-INTCON 2
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-LPARENT (
-INTCON 45
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-INTCON 56
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-DIV /
-INTCON 85
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-MINU -
-INTCON 56
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-PLUS +
-INTCON 35
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-INTCON 56
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-DIV /
-INTCON 4
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-MINU -
-INTCON 9
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-RPARENT )
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-RPARENT )
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
 <Exp>
 SEMICN ;
 <Stmt>
-INTTK int
-IDENFR k
+IDENFR cur_year
+<LVal>
 ASSIGN =
-MINU -
-<UnaryOp>
-PLUS +
-<UnaryOp>
-MINU -
-<UnaryOp>
-INTCON 5
-<Number>
-<PrimaryExp>
-<UnaryExp>
-<UnaryExp>
-<UnaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-<InitVal>
-<VarDef>
-SEMICN ;
-<VarDecl>
-INTTK int
-IDENFR n
-ASSIGN =
-INTCON 10
+INTCON 2021
 <Number>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
 <Exp>
-<InitVal>
-<VarDef>
 SEMICN ;
-<VarDecl>
-WHILETK while
+<Stmt>
+IDENFR cur_month
+<LVal>
+ASSIGN =
+INTCON 9
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR cur_day
+<LVal>
+ASSIGN =
+INTCON 23
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR year
+<LVal>
+ASSIGN =
+IDENFR birth_year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IFTK if
 LPARENT (
-IDENFR n
+IDENFR cur_year
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <AddExp>
 <RelExp>
 LSS <
-IDENFR k
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-IDENFR k
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-IDENFR k
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-IDENFR k
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-IDENFR k
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<MulExp>
-MULT *
-IDENFR k
+IDENFR birth_year
 <LVal>
 <PrimaryExp>
 <UnaryExp>
@@ -477,22 +581,76 @@ IDENFR k
 <Cond>
 RPARENT )
 LBRACE {
-IDENFR d
-<LVal>
-ASSIGN =
-IDENFR d
+PRINTFTK printf
+LPARENT (
+STRCON "please input time legally\n"
+RPARENT )
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+ELSETK else
+LBRACE {
+WHILETK while
+LPARENT (
+IDENFR year
 <LVal>
 <PrimaryExp>
 <UnaryExp>
-<MulExp>
-MULT *
-IDENFR d
+<AddExp>
+<RelExp>
+LSS <
+IDENFR cur_year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+LBRACE {
+IFTK if
+LPARENT (
+IDENFR year
 <LVal>
 <PrimaryExp>
 <UnaryExp>
 <MulExp>
 MOD %
-INTCON 10000
+INTCON 400
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+EQL ==
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+LBRACE {
+IDENFR live_days
+<LVal>
+ASSIGN =
+IDENFR live_days
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+PLUS +
+INTCON 366
 <Number>
 <PrimaryExp>
 <UnaryExp>
@@ -500,10 +658,88 @@ INTCON 10000
 <Exp>
 SEMICN ;
 <Stmt>
-IDENFR n
+RBRACE }
+<Block>
+<Stmt>
+ELSETK else
+LBRACE {
+IFTK if
+LPARENT (
+NOT !
+<UnaryOp>
+LPARENT (
+IDENFR year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MOD %
+INTCON 100
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+RPARENT )
+<PrimaryExp>
+<UnaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+LBRACE {
+PRINTFTK printf
+LPARENT (
+STRCON "100\n"
+RPARENT )
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+IFTK if
+LPARENT (
+IDENFR year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<MulExp>
+MOD %
+INTCON 4
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+LBRACE {
+PRINTFTK printf
+LPARENT (
+STRCON "4\n"
+RPARENT )
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+IDENFR year
 <LVal>
 ASSIGN =
-IDENFR n
+IDENFR year
 <LVal>
 <PrimaryExp>
 <UnaryExp>
@@ -521,25 +757,76 @@ RBRACE }
 <Block>
 <Stmt>
 <Stmt>
+IDENFR live_days
+<LVal>
+ASSIGN =
+IDENFR live_days
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+MINU -
+IDENFR get_days
+LPARENT (
+IDENFR birth_year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR birth_month
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR birth_day
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<FuncRParams>
+RPARENT )
+<UnaryExp>
+<AddExp>
+PLUS +
+IDENFR get_days
+LPARENT (
+IDENFR cur_year
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR cur_month
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR cur_day
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<FuncRParams>
+RPARENT )
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
 PRINTFTK printf
 LPARENT (
-STRCON "%d, %d, %d\n"
+STRCON "4----%d\n"
 COMMA ,
-IDENFR i
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-COMMA ,
-IDENFR j
-<LVal>
-<PrimaryExp>
-<UnaryExp>
-<AddExp>
-<Exp>
-COMMA ,
-IDENFR k
+IDENFR live_days
 <LVal>
 <PrimaryExp>
 <UnaryExp>
@@ -547,6 +834,10 @@ IDENFR k
 <Exp>
 RPARENT )
 SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
 <Stmt>
 RETURNTK return
 INTCON 0
@@ -560,4 +851,5 @@ SEMICN ;
 RBRACE }
 <Block>
 <MainFuncDef>
+<CompUnit>
 <CompUnit>

@@ -1,133 +1,223 @@
 LABEL     GLOBAL:                                 
-DEFINE    d.0                 0                   0
-ASS_CON   d.0                 4                   
+DEFINE    month_days.0        12                  0
+ASS_CON   month_days.0        31                  
+ASS_CON   month_days.0        28                  
+ASS_CON   month_days.0        31                  
+ASS_CON   month_days.0        30                  
+ASS_CON   month_days.0        31                  
+ASS_CON   month_days.0        30                  
+ASS_CON   month_days.0        31                  
+ASS_CON   month_days.0        31                  
+ASS_CON   month_days.0        30                  
+ASS_CON   month_days.0        31                  
+ASS_CON   month_days.0        30                  
+ASS_CON   month_days.0        31                  
 D_END                                             
 LABEL     GLOBAL_END:                             
-FUNC_hhh:                                         
-RECOVER   i.1                 0                   0
-LVAL      tmp@19              i.1                 
-LVAL      tmp@22              i.1                 
-MUL       tmp@16              tmp@19              tmp@22
-DEFINE    c.1                 0                   0
-ASS       c.1                 tmp@16              
+FUNC_get_days:                                        
+RECOVER   day.1               0                   0
+RECOVER   month.1             0                   0
+RECOVER   year.1              0                   0
+DEFINE    flag.1              0                   0
+ASS       flag.1              0                   
+D_END                                             
+DEFINE    i.1                 0                   0
+ASS       i.1                 0                   
+D_END                                             
+DEFINE    days.1              0                   0
+ASS       days.1              0                   
 D_END                                             
 LABEL     $Cond_1:                                
-LVAL      tmp@47              i.1                 
-EQ        tmp@53              tmp@47              1
-BEQZ      tmp@53              $Cond_3             
+LVAL      tmp@126             year.1              
+MOD       tmp@123             tmp@126             4
+NOT       tmp@119             tmp@123             
+NEQZ      tmp@129             tmp@119             
+BEQZ      tmp@129             $Cond_4             
 LABEL     $Cond_2:                                
-RET       1                                       
-JR                                                
-J         $Cond_4                                 
+LVAL      tmp@139             year.1              
+MOD       tmp@136             tmp@139             100
+NEQZ      tmp@142             tmp@136             
+BEQZ      tmp@142             $Cond_4             
 LABEL     $Cond_3:                                
+SW        flag.1              0                   1
+J         $Cond_5                                 
 LABEL     $Cond_4:                                
-LABEL     $Cond_8:                                
-LVAL      tmp@85              i.1                 
-EQ        tmp@91              tmp@85              2
-BEQZ      tmp@91              $Cond_10            
 LABEL     $Cond_9:                                
-RET       2                                       
-JR                                                
-J         $Cond_11                                
+LVAL      tmp@179             year.1              
+MOD       tmp@176             tmp@179             400
+EQ        tmp@187             tmp@176             0
+BEQZ      tmp@187             $Cond_11            
 LABEL     $Cond_10:                               
+SW        flag.1              0                   1
+J         $Cond_12                                
 LABEL     $Cond_11:                               
-LVAL      tmp@106             c.1                 
-LVAL      tmp@109             c.1                 
-MUL       tmp@103             tmp@106             tmp@109
-MOD       tmp@103             tmp@103             10
-SW        c.1                 0                   tmp@103
-LVAL      tmp@122             i.1                 
-SUBI      tmp@118             tmp@122             1
-PARA      tmp@118             0                   0
-CALL      hhh                 1                   
-FUNCRET   tmp@115                                 
-LVAL      tmp@134             i.1                 
-SUBI      tmp@130             tmp@134             2
-PARA      tmp@130             0                   0
-CALL      hhh                 1                   
-FUNCRET   tmp@127                                 
-ADD       tmp@113             tmp@115             tmp@127
-RET       tmp@113                                 
+LABEL     $Cond_12:                               
+LABEL     $Cond_5:                                
+LABEL     $Cond_16:                               
+LVAL      tmp@225             i.1                 
+LVAL      tmp@230             month.1             
+SUBI      tmp@226             tmp@230             1
+LSS       tmp@234             tmp@225             tmp@226
+NEQZ      tmp@235             tmp@234             
+BEQZ      tmp@235             $Cond_19            
+LABEL     $Cond_18:                               
+LVAL      tmp@244             days.1              
+LVAL      tmp@253             i.1                 
+SLL       tmp@254             tmp@253             2
+LW        tmp@248             month_days.0        tmp@254
+ADD       tmp@240             tmp@244             tmp@248
+SW        days.1              0                   tmp@240
+LVAL      tmp@262             i.1                 
+ADDI      tmp@258             tmp@262             1
+SW        i.1                 0                   tmp@258
+LABEL     $WHILE_23:                              
+LABEL     $Cond_24:                               
+LVAL      tmp@274             i.1                 
+LVAL      tmp@279             month.1             
+SUBI      tmp@275             tmp@279             1
+LSS       tmp@283             tmp@274             tmp@275
+NEQZ      tmp@284             tmp@283             
+BEQ       tmp@284             1                   $Cond_18
+LABEL     $Cond_19:                               
+LABEL     $WHILE_END_23:                          
+LVAL      tmp@291             days.1              
+LVAL      tmp@295             day.1               
+ADD       tmp@287             tmp@291             tmp@295
+SW        days.1              0                   tmp@287
+LABEL     $Cond_26:                               
+LVAL      tmp@319             month.1             
+GRT       tmp@324             tmp@319             2
+NEQZ      tmp@325             tmp@324             
+BEQZ      tmp@325             $Cond_28            
+LABEL     $Cond_27:                               
+LVAL      tmp@334             days.1              
+LVAL      tmp@338             flag.1              
+ADD       tmp@330             tmp@334             tmp@338
+SW        days.1              0                   tmp@330
+J         $Cond_29                                
+LABEL     $Cond_28:                               
+LABEL     $Cond_29:                               
+LVAL      tmp@344             days.1              
+RET       tmp@344                                 
 JR                                                
 F_END:                                            
 FUNC_main:                                        
-DEFINE    i.1                 0                   0
-ASS       i.1                 2                   
+DEFINE    groups.1            0                   0
 D_END                                             
-DEFINE    j.1                 0                   0
-ASS       j.1                 5                   
+DEFINE    birth_year.1        0                   0
 D_END                                             
-SW        i.1                 0                   @getInt
-SW        j.1                 0                   @getInt
-PARA      3                   0                   0
-CALL      hhh                 1                   
-FUNCRET   tmp@178                                 
-PARA      tmp@178             0                   0
-CALL      hhh                 1                   
-FUNCRET   tmp@173                                 
-SUB       tmp@162             41440               tmp@173
-ADDI      tmp@162             tmp@162             -10091
-SW        j.1                 0                   tmp@162
-SUBI      tmp@246             0                   5
-SUB       tmp@244             0                   tmp@246
-DEFINE    k.1                 0                   0
-ASS       k.1                 tmp@244             
+DEFINE    birth_month.1       0                   0
 D_END                                             
-DEFINE    n.1                 0                   0
-ASS       n.1                 10                  
+DEFINE    birth_day.1         0                   0
 D_END                                             
-LABEL     $Cond_15:                               
-LVAL      tmp@296             n.1                 
-LVAL      tmp@301             k.1                 
-LVAL      tmp@304             k.1                 
-MUL       tmp@298             tmp@301             tmp@304
-LVAL      tmp@307             k.1                 
-MUL       tmp@298             tmp@298             tmp@307
-LVAL      tmp@310             k.1                 
-MUL       tmp@298             tmp@298             tmp@310
-LVAL      tmp@313             k.1                 
-MUL       tmp@298             tmp@298             tmp@313
-LVAL      tmp@316             k.1                 
-MUL       tmp@298             tmp@298             tmp@316
-LSS       tmp@317             tmp@296             tmp@298
-NEQZ      tmp@318             tmp@317             
-BEQZ      tmp@318             $Cond_18            
-LABEL     $Cond_17:                               
-LVAL      tmp@327             d.0                 
-LVAL      tmp@330             d.0                 
-MUL       tmp@324             tmp@327             tmp@330
-MOD       tmp@324             tmp@324             10000
-SW        d.0                 0                   tmp@324
-LVAL      tmp@340             n.1                 
-ADDI      tmp@336             tmp@340             1
-SW        n.1                 0                   tmp@336
-LABEL     $WHILE_22:                              
-LABEL     $Cond_23:                               
-LVAL      tmp@352             n.1                 
-LVAL      tmp@357             k.1                 
-LVAL      tmp@360             k.1                 
-MUL       tmp@354             tmp@357             tmp@360
-LVAL      tmp@363             k.1                 
-MUL       tmp@354             tmp@354             tmp@363
-LVAL      tmp@366             k.1                 
-MUL       tmp@354             tmp@354             tmp@366
-LVAL      tmp@369             k.1                 
-MUL       tmp@354             tmp@354             tmp@369
-LVAL      tmp@372             k.1                 
-MUL       tmp@354             tmp@354             tmp@372
-LSS       tmp@373             tmp@352             tmp@354
-NEQZ      tmp@374             tmp@373             
-BEQ       tmp@374             1                   $Cond_17
-LABEL     $Cond_18:                               
-LABEL     $WHILE_END_22:                          
-LVAL      tmp@380             i.1                 
-LVAL      tmp@385             j.1                 
-LVAL      tmp@390             k.1                 
-WI        tmp@380                                 
-WS        ,                                       
-WI        tmp@385                                 
-WS        ,                                       
-WI        tmp@390                                 
+DEFINE    cur_year.1          0                   0
+D_END                                             
+DEFINE    cur_month.1         0                   0
+D_END                                             
+DEFINE    cur_day.1           0                   0
+D_END                                             
+DEFINE    year.1              0                   0
+D_END                                             
+DEFINE    live_days.1         0                   0
+ASS       live_days.1         0                   
+D_END                                             
+SW        birth_year.1        0                   1998
+SW        birth_month.1       0                   3
+SW        birth_day.1         0                   23
+SW        cur_year.1          0                   2021
+SW        cur_month.1         0                   9
+SW        cur_day.1           0                   23
+LVAL      tmp@419             birth_year.1        
+SW        year.1              0                   tmp@419
+LABEL     $Cond_33:                               
+LVAL      tmp@444             cur_year.1          
+LVAL      tmp@449             birth_year.1        
+LSS       tmp@450             tmp@444             tmp@449
+NEQZ      tmp@451             tmp@450             
+BEQZ      tmp@451             $Cond_35            
+LABEL     $Cond_34:                               
+WS        please input time legally                    
 WC        \n                                      
+J         $Cond_36                                
+LABEL     $Cond_35:                               
+LABEL     $Cond_40:                               
+LVAL      tmp@482             year.1              
+LVAL      tmp@487             cur_year.1          
+LSS       tmp@488             tmp@482             tmp@487
+NEQZ      tmp@489             tmp@488             
+BEQZ      tmp@489             $Cond_43            
+LABEL     $Cond_42:                               
+LABEL     $Cond_48:                               
+LVAL      tmp@517             year.1              
+MOD       tmp@514             tmp@517             400
+EQ        tmp@525             tmp@514             0
+BEQZ      tmp@525             $Cond_50            
+LABEL     $Cond_49:                               
+LVAL      tmp@535             live_days.1         
+ADDI      tmp@531             tmp@535             366
+SW        live_days.1         0                   tmp@531
+J         $Cond_51                                
+LABEL     $Cond_50:                               
+LABEL     $Cond_55:                               
+LVAL      tmp@571             year.1              
+MOD       tmp@568             tmp@571             100
+NOT       tmp@564             tmp@568             
+NEQZ      tmp@574             tmp@564             
+BEQZ      tmp@574             $Cond_57            
+LABEL     $Cond_56:                               
+WS        100                                     
+WC        \n                                      
+J         $Cond_58                                
+LABEL     $Cond_57:                               
+LABEL     $Cond_58:                               
+LABEL     $Cond_62:                               
+LVAL      tmp@598             year.1              
+MOD       tmp@595             tmp@598             4
+NEQZ      tmp@601             tmp@595             
+BEQZ      tmp@601             $Cond_64            
+LABEL     $Cond_63:                               
+WS        4                                       
+WC        \n                                      
+J         $Cond_65                                
+LABEL     $Cond_64:                               
+LABEL     $Cond_65:                               
+LABEL     $Cond_51:                               
+LVAL      tmp@612             year.1              
+ADDI      tmp@608             tmp@612             1
+SW        year.1              0                   tmp@608
+LABEL     $WHILE_47:                              
+LABEL     $Cond_69:                               
+LVAL      tmp@624             year.1              
+LVAL      tmp@629             cur_year.1          
+LSS       tmp@630             tmp@624             tmp@629
+NEQZ      tmp@631             tmp@630             
+BEQ       tmp@631             1                   $Cond_42
+LABEL     $Cond_43:                               
+LABEL     $WHILE_END_47:                          
+LVAL      tmp@638             live_days.1         
+LVAL      tmp@647             birth_year.1        
+PARA      tmp@647             0                   0
+LVAL      tmp@653             birth_month.1       
+PARA      tmp@653             0                   0
+LVAL      tmp@659             birth_day.1         
+PARA      tmp@659             0                   0
+CALL      get_days            3                   
+FUNCRET   tmp@640                                 
+SUB       tmp@634             tmp@638             tmp@640
+LVAL      tmp@668             cur_year.1          
+PARA      tmp@668             0                   0
+LVAL      tmp@674             cur_month.1         
+PARA      tmp@674             0                   0
+LVAL      tmp@680             cur_day.1           
+PARA      tmp@680             0                   0
+CALL      get_days            3                   
+FUNCRET   tmp@661                                 
+ADD       tmp@634             tmp@634             tmp@661
+SW        live_days.1         0                   tmp@634
+LVAL      tmp@687             live_days.1         
+WS        4----                                   
+WI        tmp@687                                 
+WC        \n                                      
+LABEL     $Cond_36:                               
 EXIT                                              
 F_END:                                            

@@ -48,6 +48,7 @@ public class GrammarAnalyzer {
             error = new BufferedWriter(new FileWriter("error.txt"));
             Program();
             PRINT("<CompUnit>");
+            PRINT("<CompUnit>");
             out.close();
         } catch (MyException e) {
             ;
@@ -1423,7 +1424,7 @@ public class GrammarAnalyzer {
                 GETWORD();  //[
                 shift = exp();
                 GETWORD();  //]
-                semanticAnalyzer.para(funcName + "." + layer ,shift, dim, rangey);
+                semanticAnalyzer.para(funcName + "." + layer, shift, dim, rangey);
             } else {
                 semanticAnalyzer.para(funcName + "." + layer, dim, rangey);
             }

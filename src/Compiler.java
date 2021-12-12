@@ -19,9 +19,12 @@ public class Compiler {
         grammarAnalyzer.analyse();
 //        exceptionHandler.output();
         semanticAnalyzer.output();
-//        ArrayList<Quadruple> midCode = optimizer.optimize();
-//        MipsGenerator mipsGenerator = new MipsGenerator(midCode);
-        MipsGenerator mipsGenerator = new MipsGenerator(semanticAnalyzer.quadruples);
+
+        Optimizer optimizer = new Optimizer(semanticAnalyzer.quadruples);
+        optimizer.optimize();
+        optimizer.output();
+        MipsGenerator mipsGenerator = new MipsGenerator(optimizer.quadruples, optimizer);
+
         mipsGenerator.analyse();
         mipsGenerator.output();
     }

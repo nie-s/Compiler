@@ -14,7 +14,6 @@ public class SemanticAnalyzer {
         if (output) {
             Quadruple quadruple = new Quadruple(op, dst, src1, src2);
             this.quadruples.add(quadruple);
-//            System.out.println(quadruple);
         }
     }
 
@@ -63,11 +62,13 @@ public class SemanticAnalyzer {
             addQuadruple("ADDI", "tmp@" + dst, checkNumber(src1), String.valueOf(numbers.get(src2)));
         } else {
             addQuadruple("ADD", "tmp@" + dst, checkNumber(src1), "tmp@" + src2);
+            numbers.remove(dst);
         }
     }
 
     public void sll(int dst, int src1, int src2) {
         addQuadruple("SLL", "tmp@" + dst, checkNumber(src1), String.valueOf(src2));
+        numbers.remove(dst);
     }
 
     public void sub(int dst, int src1, int src2) {
@@ -77,6 +78,7 @@ public class SemanticAnalyzer {
             addQuadruple("SUBI", "tmp@" + dst, checkNumber(src1), String.valueOf(numbers.get(src2)));
         } else {
             addQuadruple("SUB", "tmp@" + dst, checkNumber(src1), "tmp@" + src2);
+            numbers.remove(dst);
 
         }
     }
@@ -86,6 +88,7 @@ public class SemanticAnalyzer {
             addQuadruple("SUBI", "tmp@" + dst, src1, String.valueOf(numbers.get(src2)));
         } else {
             addQuadruple("SUB", "tmp@" + dst, src1, checkNumber(src2));
+            numbers.remove(dst);
         }
     }
 
@@ -94,6 +97,7 @@ public class SemanticAnalyzer {
             numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) * Integer.parseInt(numbers.get(src2))));
         } else {
             addQuadruple("MUL", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+            numbers.remove(dst);
         }
     }
 
@@ -102,6 +106,7 @@ public class SemanticAnalyzer {
             numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) / Integer.parseInt(numbers.get(src2))));
         } else {
             addQuadruple("DIV", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+            numbers.remove(dst);
         }
     }
 
@@ -110,15 +115,18 @@ public class SemanticAnalyzer {
             numbers.put(dst, String.valueOf(Integer.parseInt(numbers.get(src1)) % Integer.parseInt(numbers.get(src2))));
         } else {
             addQuadruple("MOD", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+            numbers.remove(dst);
         }
     }
 
     public void mul(int dst, int src1, String src2) {
         addQuadruple("MUL", "tmp@" + dst, checkNumber(src1), src2);
+        numbers.remove(dst);
     }
 
     public void not(int dst, int src) {
         addQuadruple("NOT", "tmp@" + dst, checkNumber(src), "");
+        numbers.remove(dst);
     }
 
     public void jr() {
@@ -180,6 +188,7 @@ public class SemanticAnalyzer {
 
     public void funcRet(int dst) {
         addQuadruple("FUNCRET", "tmp@" + dst, "", "");
+        numbers.remove(dst);
     }
 
     public void exit() {
@@ -196,30 +205,37 @@ public class SemanticAnalyzer {
 
     public void eq(int dst, int src1, int src2) {
         addQuadruple("EQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        numbers.remove(dst);
     }
 
     public void neq(int dst, int src1, int src2) {
         addQuadruple("NEQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        numbers.remove(dst);
     }
 
     public void neqz(int dst, int src1) {
         addQuadruple("NEQZ", "tmp@" + dst, checkNumber(src1), "");
+        numbers.remove(dst);
     }
 
     public void lss(int dst, int src1, int src2) {
         addQuadruple("LSS", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        numbers.remove(dst);
     }
 
     public void leq(int dst, int src1, int src2) {
         addQuadruple("LEQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        numbers.remove(dst);
     }
 
     public void grt(int dst, int src1, int src2) {
         addQuadruple("GRT", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        numbers.remove(dst);
     }
 
     public void geq(int dst, int src1, int src2) {
         addQuadruple("GEQ", "tmp@" + dst, checkNumber(src1), checkNumber(src2));
+        numbers.remove(dst);
     }
 
     public void number(int dst, String src) {
@@ -229,10 +245,12 @@ public class SemanticAnalyzer {
 
     public void lw(int dst, String src, int shift) {
         addQuadruple("LW", "tmp@" + dst, src, "tmp@" + shift);
+        numbers.remove(dst);
     }
 
     public void lval(int dst, String src) {
         addQuadruple("LVAL", "tmp@" + dst, src, "");
+        numbers.remove(dst);
     }
 
     public void sw(String dst, String shift, String src) {
@@ -259,6 +277,3 @@ public class SemanticAnalyzer {
         }
     }
 }
-
-// dst = "@RET";
-//    dst.append(to_string(functionCallCnt++));
