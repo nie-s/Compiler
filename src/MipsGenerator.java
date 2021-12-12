@@ -27,7 +27,7 @@ public class MipsGenerator {
     int index = 0;
     int strCnt = 0;
     int currentSP = 0;
-    boolean debug = true;
+    boolean debug = false;
 
     public static class Mips {
         public String op;
@@ -706,6 +706,8 @@ public class MipsGenerator {
 
     public void output() {
         try {
+            saveAndLoad();
+
             BufferedWriter out = new BufferedWriter(new FileWriter("mips.txt"));
             for (Mips mip : data) {
                 out.write(mip.toString() + "\n");
@@ -730,6 +732,21 @@ public class MipsGenerator {
     public void print_data(Mips mips) {
 //        System.out.println(mips);
         this.data.add(mips);
+    }
+
+    public void saveAndLoad() {
+        for (int i = 0; i < mips.size() - 2; i++) {
+            Mips mip = mips.get(i);
+//            sw        $t2         0($sp)
+//            lw        $t0         0($sp)
+            if (mips.get(i).op.equals("sw") && mips.get(i + 1).op.equals("lw")
+                    && mips.get(i).src1.equals(mips.get(i + 1).src1)
+                    && mips.get(i + 1).dst.startsWith("$t") && mips.get(i).dst.startsWith("$t")) {
+                mips.get(i + 1).op = "move";
+                mips.get(i + 1).src1 = mips.get(i).dst;
+                i++;
+            }
+        }
     }
 
 }
