@@ -361,7 +361,9 @@ public class MipsGenerator {
             if (quadruples.get(index).isConstDefine()) {
                 while (!quadruples.get(index).isDefineEnd()) {
                     //TODO 0没有赋值
-                    if (!quadruples.get(index).src1.equals("0")) {
+                    if (quadruples.get(index).src1.startsWith("$t")) {
+                        print_mips(new Mips("sw", quadruples.get(index).src1, currentSP + "($sp)", ""));
+                    } if (!quadruples.get(index).src1.equals("0")) {
                         print_mips(new Mips("li", "$t0", quadruples.get(index).src1, ""));
                         print_mips(new Mips("sw", "$t0", currentSP + "($sp)", ""));
                     } else {
@@ -372,15 +374,16 @@ public class MipsGenerator {
                 }
             } else {
                 while (!quadruples.get(index).isDefineEnd()) {
-                    if (!quadruples.get(index).src1.equals("0")) {
+                    if (quadruples.get(index).src1.startsWith("$t")) {
+                        print_mips(new Mips("sw", quadruples.get(index).src1, currentSP + "($sp)", ""));
+                    } else if (!quadruples.get(index).src1.equals("0")) {
                         if (isNumber(quadruples.get(index).src1)) {
                             print_mips(new Mips("li", "$t0", quadruples.get(index).src1, ""));
                         } else {
                             String src = quadruples.get(index).src1;
                             if (lvalMap.containsKey(src)) {
                                 src = lvalMap.get(src);
-                            }
-                            if (global.contains(src)) {
+                            } else if (global.contains(src)) {
                                 print_mips(new Mips("lw", "$t0", src, ""));
                             } else {
                                 int pos = varTable.get(quadruples.get(index).src1);

@@ -22,11 +22,11 @@ public class Compiler {
 
         Optimizer optimizer = new Optimizer(semanticAnalyzer.quadruples);
         optimizer.optimize();
+        optimizer.output();
         MipsGenerator mipsGenerator = new MipsGenerator(optimizer.quadruples, optimizer);
 
         mipsGenerator.analyse();
         mipsGenerator.output();
-
 
     }
 

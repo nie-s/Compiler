@@ -12,7 +12,7 @@ public class Optimizer {
     long[] pow = new long[100];
     ArrayList<Quadruple> quadruples;
     ArrayList<MipsGenerator.Mips> mips;
-//    HashMap<String, Integer> lvalCnt = new HashMap<>();
+    //    HashMap<String, Integer> lvalCnt = new HashMap<>();
 //    HashMap<String, String> registers = new HashMap<>();
     ArrayList<String> regList = new ArrayList<>();
 
@@ -107,6 +107,28 @@ public class Optimizer {
                     quadruples.get(i + 1).src2 = "$t5";
                     quadruples.get(i).dst = "$t5";
                 }
+
+                if (quadruples.get(i + 1).dst.equals(temp)
+                        && (quadruples.get(i + 1).op.equals("BEQ")
+                        || quadruples.get(i + 1).op.equals("BEQZ")
+//                        || quadruples.get(i + 1).op.equals("PARA")
+//                        || quadruples.get(i + 1).op.equals("RET")
+                )) {
+                    quadruples.get(i + 1).dst = "$t6";
+                    quadruples.get(i).dst = "$t6";
+                }
+
+                //        ADD       tmp@25              tmp@29              $t5
+//        DEFINE    d.1                 0                   0
+//        ASS       d.1                 tmp@25
+
+                if (quadruples.get(i + 2).src1.equals(temp)
+                        && quadruples.get(i + 1).op.equals("DEFINE")
+                        && quadruples.get(i + 2).op.equals("ASS")) {
+                    quadruples.get(i + 2).src1 = "$t6";
+                    quadruples.get(i).dst = "$t6";
+                }
+
             }
         }
     }
