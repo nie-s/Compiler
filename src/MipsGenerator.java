@@ -19,7 +19,8 @@ public class MipsGenerator {
     HashMap<String, Integer> varReal = new HashMap<>();
 
     HashMap<String, String> lvalMap = new HashMap<>();
-
+    HashMap<String, String> allocated = new HashMap<>();
+    ArrayList<String> regList = new ArrayList<>();
     Stack<Quadruple> funcStack = new Stack<>();
 
     Optimizer optimizer;
@@ -27,7 +28,7 @@ public class MipsGenerator {
     int index = 0;
     int strCnt = 0;
     int currentSP = 0;
-    boolean debug = false;
+    boolean debug = true;
 
     public static class Mips {
         public String op;
@@ -57,6 +58,22 @@ public class MipsGenerator {
     public MipsGenerator(ArrayList<Quadruple> quadruples, Optimizer optimizer) {
         this.quadruples = quadruples;
         this.optimizer = optimizer;
+
+        regList.add("$t7");
+        regList.add("$t8");
+        regList.add("$t9");
+        regList.add("$s0");
+        regList.add("$s1");
+        regList.add("$s2");
+        regList.add("$s3");
+        regList.add("$s4");
+        regList.add("$s5");
+        regList.add("$s6");
+        regList.add("$s7");
+        regList.add("$a1");
+        regList.add("$a2");
+        regList.add("$a3");
+        regList.add("$v1");
     }
 
     public void analyse() {
@@ -130,6 +147,8 @@ public class MipsGenerator {
             list.add(quadruples.get(index++));
         }
 
+        allocated = new HashMap<>();
+
         int cnt = list.size();
         for (int i = 0; i < cnt; i++) {
             Quadruple quadruple = list.get(i);
@@ -142,7 +161,7 @@ public class MipsGenerator {
             String dst = quadruples.get(index).dst;
             String src1 = quadruples.get(index).src1;
             String src2 = quadruples.get(index).src2;
-
+//            System.out.println(quadruples.get(index));
             switch (op) {
                 case "WS":
                     printString();
@@ -218,6 +237,7 @@ public class MipsGenerator {
                     break;
                 case "FUNCRET":
                     save("$v0", dst);
+                    recoverRegisters();
                     break;
                 case "RET":
                     load("$v0", dst);
@@ -240,6 +260,8 @@ public class MipsGenerator {
         if (debug) print_mips(new Mips("#call", quadruples.get(index).dst, "", ""));
         int size = funcStack.size();
         int lastSP = currentSP;
+
+        saveRegister();
 
         for (int i = 0; i < dim; i++) {
 
@@ -264,7 +286,7 @@ public class MipsGenerator {
                     print_mips(new Mips("addu", "$t0", "$t0", reg));
                 } else {
                     print_mips(new Mips("li", "$t2", String.valueOf(rangey), ""));
-                    print_mips(new Mips("mul", "$t2", "$t2", "$t1"));
+                    print_mips(new Mips("mul", "$t2", "$t2", reg));
                     print_mips(new Mips("sll", "$t2", "$t2", "2"));
                     print_mips(new Mips("addu", "$t0", "$t0", "$t2"));
                 }
@@ -293,8 +315,21 @@ public class MipsGenerator {
         currentSP = lastSP;
     }
 
+    public void saveRegister() {
+        for (String ident : allocated.keySet()) {
+            int pos_shift = varTable.get(ident);
+            print_mips(new Mips("sw", allocated.get(ident), pos_shift + "($sp)", ""));
+        }
+    }
+
+    public void recoverRegisters() {
+        for (String ident : allocated.keySet()) {
+            int pos_shift = varTable.get(ident);
+            print_mips(new Mips("lw", allocated.get(ident), pos_shift + "($sp)", ""));
+        }
+    }
+
     public void recover(int shift, String dst, String src1, String src2) {
-//        int shift = 0;
 
         varTable.put(dst, -shift);
         varDim.put(dst, Integer.valueOf(src1));
@@ -304,6 +339,7 @@ public class MipsGenerator {
         } else {
             varType.put(dst, 1);
         }
+
 
     }
 
@@ -340,6 +376,12 @@ public class MipsGenerator {
 
     public void localDefine() {
         if (debug) print_mips(new Mips("#define", quadruples.get(index).dst, "", ""));
+        if (quadruples.get(index).src1.equals("0")
+                && quadruples.get(index).src2.equals("0")) {
+            if (allocated.size() < regList.size()) {
+                allocated.put(quadruples.get(index).dst, regList.get(allocated.size()));
+            }
+        }
         Quadruple quadruple = quadruples.get(index);
         String name = quadruple.dst;
         String src1 = quadruple.src1;
@@ -362,8 +404,14 @@ public class MipsGenerator {
                 while (!quadruples.get(index).isDefineEnd()) {
                     //TODO 0没有赋值
                     if (quadruples.get(index).src1.startsWith("$t")) {
-                        print_mips(new Mips("sw", quadruples.get(index).src1, currentSP + "($sp)", ""));
-                    } if (!quadruples.get(index).src1.equals("0")) {
+                        if (allocated.containsKey(quadruples.get(index).dst)) {
+                            print_mips(new Mips("move", allocated.get(quadruples.get(index).dst), quadruples.get(index).src1, ""));
+                        } else {
+                            print_mips(new Mips("sw", quadruples.get(index).src1, currentSP + "($sp)", ""));
+                        }
+                    } else if (allocated.containsKey(quadruples.get(index).dst)) {
+                        print_mips(new Mips("li", allocated.get(quadruples.get(index).dst), quadruples.get(index).src1, ""));
+                    } else if (!quadruples.get(index).src1.equals("0")) {
                         print_mips(new Mips("li", "$t0", quadruples.get(index).src1, ""));
                         print_mips(new Mips("sw", "$t0", currentSP + "($sp)", ""));
                     } else {
@@ -375,13 +423,33 @@ public class MipsGenerator {
             } else {
                 while (!quadruples.get(index).isDefineEnd()) {
                     if (quadruples.get(index).src1.startsWith("$t")) {
-                        print_mips(new Mips("sw", quadruples.get(index).src1, currentSP + "($sp)", ""));
+                        if (allocated.containsKey(quadruples.get(index).dst)) {
+                            print_mips(new Mips("move", allocated.get(quadruples.get(index).dst), quadruples.get(index).src1, ""));
+                        } else {
+                            print_mips(new Mips("sw", quadruples.get(index).src1, currentSP + "($sp)", ""));
+                        }
+                    } else if (allocated.containsKey(quadruples.get(index).dst)) {
+                        if (isNumber(quadruples.get(index).src1)) {
+                            print_mips(new Mips("li", allocated.get(quadruples.get(index).dst), quadruples.get(index).src1, ""));
+                        } else {
+                            String src = quadruples.get(index).src1;
+                            if (allocated.containsKey(quadruples.get(index).src1)) {
+                                print_mips(new Mips("move", allocated.get(quadruples.get(index).dst), allocated.get(src), ""));
+                            } else if (global.contains(src)) {
+                                print_mips(new Mips("lw", allocated.get(quadruples.get(index).dst), src, ""));
+                            } else {
+                                int pos = varTable.get(quadruples.get(index).src1);
+                                print_mips(new Mips("lw", allocated.get(quadruples.get(index).dst), pos + "($sp)", ""));
+                            }
+                        }
                     } else if (!quadruples.get(index).src1.equals("0")) {
                         if (isNumber(quadruples.get(index).src1)) {
                             print_mips(new Mips("li", "$t0", quadruples.get(index).src1, ""));
                         } else {
                             String src = quadruples.get(index).src1;
-                            if (lvalMap.containsKey(src)) {
+                            if (allocated.containsKey(quadruples.get(index).src1)) {
+                                print_mips(new Mips("move", "$t0", allocated.get(src), ""));
+                            } else if (lvalMap.containsKey(src)) {
                                 src = lvalMap.get(src);
                             } else if (global.contains(src)) {
                                 print_mips(new Mips("lw", "$t0", src, ""));
@@ -431,9 +499,6 @@ public class MipsGenerator {
         if (!quadruples.get(index).dst.startsWith("$t")) {
             String name = quadruples.get(index).dst;
             varTable.put(name, currentSP);
-            varType.put(name, 0);
-            varDim.put(name, 0);
-            varReal.put(name, 0);
             print_mips(new Mips("sw", "$t0", currentSP + "($sp)", ""));
         }
 
@@ -449,24 +514,27 @@ public class MipsGenerator {
     }
 
     public String load(String dst, String src) {
+//        System.out.println(dst + ":" + src);
         if (debug) print_mips(new Mips("#load", dst, src, ""));
         if (src.startsWith("$")) {
-            if (src.equals("$v0") || src.equals("$a0")) {
+            if (dst.equals("$v0") || dst.equals("$a0")) {
                 print_mips(new Mips("move", dst, src, ""));
             } else {
                 dst = src;
+            }
+        } else if (allocated.containsKey(src)) {
+            if (dst.equals("$v0") || dst.equals("$a0")) {
+                print_mips(new Mips("move", dst, allocated.get(src), ""));
+            } else {
+                dst = allocated.get(src);
             }
         } else if (global.contains(src)) {
             print_mips(new Mips("lw", dst, src, ""));
         } else if (isNumber(src)) {
             print_mips(new Mips("li", dst, src, ""));
-        } else if (src.startsWith("$")) {
-            if (!src.equals(dst) || src.equals("$v0")) {
-                print_mips(new Mips("move", dst, src, ""));
-            }
         } else if (lvalMap.containsKey(src)) {
             dst = load(dst, lvalMap.get(src));
-        } else if (varType.get(src) == 1) {
+        } else if (varType.containsKey(src) && varType.get(src) == 1) {
             load_address("$t4", src);
             print_mips(new Mips("lw", "$t4", "($t4)", ""));
             print_mips(new Mips("lw", dst, "($t4)", ""));
@@ -522,15 +590,16 @@ public class MipsGenerator {
         if (src2.equals("@getInt")) {   //输入
             print_mips(new Mips("li", "$v0", "5", ""));
             print_mips(new Mips("syscall"));
-            print_mips(new Mips("move", "$t1", "$v0", ""));
+            reg = "$v0";
         } else {
             reg = load("$t1", src2);
         }
 
-
         if (src1.equals("0")) {
             if (global.contains(dst)) {
                 print_mips(new Mips("sw", reg, dst + "($0)", ""));
+            } else if (allocated.containsKey(dst)) {
+                print_mips(new Mips("move", allocated.get(dst), reg, ""));
             } else {
                 int pos = varTable.get(dst);
                 if (pos < 0) {

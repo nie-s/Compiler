@@ -1,0 +1,164 @@
+.data                             
+          .str0:      .asciiz     ":"
+
+.text                             
+li        $sp         0x10040004  
+J         main                    
+                                  
+move:                             
+#print    x.1                     
+#load     $a0         x.1         
+lw        $a0         -12($sp)    
+addiu     $v0         $0          1
+syscall                           
+#print    :                       
+addiu     $v0         $0          4
+la        $a0         .str0       
+syscall                           
+#print    y.1                     
+#load     $a0         y.1         
+lw        $a0         -8($sp)     
+addiu     $v0         $0          1
+syscall                           
+#print    \n                      
+addiu     $v0         $0          11
+li        $a0         10          
+syscall                           
+jr        $ra                     
+                                  
+hanoi:                            
+                                  
+$Cond_1:                          
+#eq       $t6         n.1         1
+#load     $t0         n.1         
+lw        $t0         -20($sp)    
+#load     $t1         1           
+li        $t1         1           
+slt       $t4         $t0         $t1
+slt       $t3         $t1         $t0
+or        $t4         $t4         $t3
+li        $t3         1           
+sub       $t6         $t3         $t4
+#load     $t0         $t6         
+beq       $t6         $0          $Cond_3
+                                  
+$Cond_2:                          
+#call     move                    
+#getpara  one.1       0           
+#load     $t0         one.1       
+lw        $t0         -16($sp)    
+sw        $t0         0($sp)      
+#getpara  three.1     0           
+#load     $t0         three.1     
+lw        $t0         -8($sp)     
+sw        $t0         4($sp)      
+sw        $ra         8($sp)      
+addu      $sp         $sp         12
+jal       move                    
+lw        $ra         -4($sp)     
+sub       $sp         $sp         12
+sw        $v0         0($sp)      
+j         $Cond_4                 
+                                  
+$Cond_3:                          
+#subi     tmp@83      n.1         1
+#load     $t0         n.1         
+lw        $t0         -20($sp)    
+subi      $t2         $t0         1
+sw        $t2         4($sp)      
+#call     hanoi                   
+#getpara  tmp@83      0           
+#load     $t0         tmp@83      
+lw        $t0         4($sp)      
+sw        $t0         8($sp)      
+#getpara  one.1       0           
+#load     $t0         one.1       
+lw        $t0         -16($sp)    
+sw        $t0         12($sp)     
+#getpara  three.1     0           
+#load     $t0         three.1     
+lw        $t0         -8($sp)     
+sw        $t0         16($sp)     
+#getpara  two.1       0           
+#load     $t0         two.1       
+lw        $t0         -12($sp)    
+sw        $t0         20($sp)     
+sw        $ra         24($sp)     
+addu      $sp         $sp         28
+jal       hanoi                   
+lw        $ra         -4($sp)     
+sub       $sp         $sp         28
+sw        $v0         8($sp)      
+#call     move                    
+#getpara  one.1       0           
+#load     $t0         one.1       
+lw        $t0         -16($sp)    
+sw        $t0         12($sp)     
+#getpara  three.1     0           
+#load     $t0         three.1     
+lw        $t0         -8($sp)     
+sw        $t0         16($sp)     
+sw        $ra         20($sp)     
+addu      $sp         $sp         24
+jal       move                    
+lw        $ra         -4($sp)     
+sub       $sp         $sp         24
+sw        $v0         12($sp)     
+#subi     tmp@134     n.1         1
+#load     $t0         n.1         
+lw        $t0         -20($sp)    
+subi      $t2         $t0         1
+sw        $t2         16($sp)     
+#call     hanoi                   
+#getpara  tmp@134     0           
+#load     $t0         tmp@134     
+lw        $t0         16($sp)     
+sw        $t0         20($sp)     
+#getpara  two.1       0           
+#load     $t0         two.1       
+lw        $t0         -12($sp)    
+sw        $t0         24($sp)     
+#getpara  one.1       0           
+#load     $t0         one.1       
+lw        $t0         -16($sp)    
+sw        $t0         28($sp)     
+#getpara  three.1     0           
+#load     $t0         three.1     
+lw        $t0         -8($sp)     
+sw        $t0         32($sp)     
+sw        $ra         36($sp)     
+addu      $sp         $sp         40
+jal       hanoi                   
+lw        $ra         -4($sp)     
+sub       $sp         $sp         40
+sw        $v0         20($sp)     
+                                  
+$Cond_4:                          
+jr        $ra                     
+                                  
+main:                             
+#call     hanoi                   
+#getpara  5           0           
+#load     $t0         5           
+li        $t0         5           
+sw        $t0         0($sp)      
+#getpara  1           0           
+#load     $t0         1           
+li        $t0         1           
+sw        $t0         4($sp)      
+#getpara  2           0           
+#load     $t0         2           
+li        $t0         2           
+sw        $t0         8($sp)      
+#getpara  3           0           
+#load     $t0         3           
+li        $t0         3           
+sw        $t0         12($sp)     
+sw        $ra         16($sp)     
+addu      $sp         $sp         20
+jal       hanoi                   
+lw        $ra         -4($sp)     
+sub       $sp         $sp         20
+sw        $v0         0($sp)      
+li        $v0         10          
+syscall                           

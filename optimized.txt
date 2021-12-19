@@ -3,11 +3,9 @@ LABEL     GLOBAL_END:
 FUNC_move:                                        
 RECOVER   y.1                 0                   0
 RECOVER   x.1                 0                   0
-LVAL      tmp@12              x.1                 
-LVAL      tmp@17              y.1                 
-WI        tmp@12                                  
+WI        x.1                                     
 WS        :                                       
-WI        tmp@17                                  
+WI        y.1                                     
 WC        \n                                      
 JR                                                
 F_END:                                            
@@ -17,44 +15,31 @@ RECOVER   two.1               0                   0
 RECOVER   one.1               0                   0
 RECOVER   n.1                 0                   0
 LABEL     $Cond_1:                                
-LVAL      tmp@49              n.1                 
-EQ        tmp@55              tmp@49              1
-BEQZ      tmp@55              $Cond_3             
+EQ        $t6                 n.1                 1
+BEQZ      $t6                 $Cond_3             
 LABEL     $Cond_2:                                
-LVAL      tmp@67              one.1               
-PARA      tmp@67              0                   0
-LVAL      tmp@73              three.1             
-PARA      tmp@73              0                   0
+PARA      one.1               0                   0
+PARA      three.1             0                   0
 CALL      move                2                   
 FUNCRET   tmp@60                                  
 J         $Cond_4                                 
 LABEL     $Cond_3:                                
-LVAL      tmp@87              n.1                 
-SUBI      tmp@83              tmp@87              1
+SUBI      tmp@83              n.1                 1
 PARA      tmp@83              0                   0
-LVAL      tmp@96              one.1               
-PARA      tmp@96              0                   0
-LVAL      tmp@102             three.1             
-PARA      tmp@102             0                   0
-LVAL      tmp@108             two.1               
-PARA      tmp@108             0                   0
+PARA      one.1               0                   0
+PARA      three.1             0                   0
+PARA      two.1               0                   0
 CALL      hanoi               4                   
 FUNCRET   tmp@80                                  
-LVAL      tmp@120             one.1               
-PARA      tmp@120             0                   0
-LVAL      tmp@126             three.1             
-PARA      tmp@126             0                   0
+PARA      one.1               0                   0
+PARA      three.1             0                   0
 CALL      move                2                   
 FUNCRET   tmp@113                                 
-LVAL      tmp@138             n.1                 
-SUBI      tmp@134             tmp@138             1
+SUBI      tmp@134             n.1                 1
 PARA      tmp@134             0                   0
-LVAL      tmp@147             two.1               
-PARA      tmp@147             0                   0
-LVAL      tmp@153             one.1               
-PARA      tmp@153             0                   0
-LVAL      tmp@159             three.1             
-PARA      tmp@159             0                   0
+PARA      two.1               0                   0
+PARA      one.1               0                   0
+PARA      three.1             0                   0
 CALL      hanoi               4                   
 FUNCRET   tmp@131                                 
 LABEL     $Cond_4:                                

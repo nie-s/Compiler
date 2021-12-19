@@ -1,20 +1,15 @@
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class Optimizer {
     long[] pow = new long[100];
     ArrayList<Quadruple> quadruples;
-    ArrayList<MipsGenerator.Mips> mips;
-    //    HashMap<String, Integer> lvalCnt = new HashMap<>();
-//    HashMap<String, String> registers = new HashMap<>();
-    ArrayList<String> regList = new ArrayList<>();
+    HashMap<String, String> registers = new HashMap<>();
+
+    ArrayList<String> allocated = new ArrayList<>();
 
     public Optimizer(ArrayList<Quadruple> quadruples) {
         this.quadruples = quadruples;
@@ -22,23 +17,7 @@ public class Optimizer {
         for (int i = 1; i <= 70; i++) {
             pow[i] = pow[i - 1] * 2;
         }
-        //t6-t9  s0-s7   a0-a3
-        regList.add("$t6");
-        regList.add("$t7");
-        regList.add("$t8");
-        regList.add("$t9");
-        regList.add("$s0");
-        regList.add("$s1");
-        regList.add("$s2");
-        regList.add("$s3");
-        regList.add("$s4");
-        regList.add("$s5");
-        regList.add("$s6");
-        regList.add("$s7");
-        regList.add("$a0");
-        regList.add("$a1");
-        regList.add("$a2");
-        regList.add("$a3");
+
     }
 
     public void optimize() {
@@ -53,11 +32,6 @@ public class Optimizer {
             Quadruple quadruple = it.next();
             if (quadruple.op.equals("LVAL")) {
                 lvals.put(quadruple.dst, quadruple.src1);
-//                if (!lvalCnt.containsKey(quadruple.src1)) {
-//                    lvalCnt.put(quadruple.src1, 1);
-//                } else {
-//                    lvalCnt.replace(quadruple.src1, lvalCnt.get(quadruple.src1) + 1);
-//                }
                 it.remove();
             }
 
@@ -79,19 +53,6 @@ public class Optimizer {
                 quadruple.src2 = lvals.get(quadruple.src2);
             }
         }
-//        List<Map.Entry<String, Integer>> list = new ArrayList<Map.Entry<String, Integer>>(lvalCnt.entrySet());
-//        list.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
-//
-//        int i = 0;
-//        for (Map.Entry<String, Integer> mapping : list) {
-//            if (i == regList.size()) {
-//                break;
-//            }
-//            System.out.println(mapping.getKey() + ":" + regList.get(i));
-//            registers.put(mapping.getKey(), regList.get(i++));
-//        }
-
-
     }
 
 
@@ -111,16 +72,10 @@ public class Optimizer {
                 if (quadruples.get(i + 1).dst.equals(temp)
                         && (quadruples.get(i + 1).op.equals("BEQ")
                         || quadruples.get(i + 1).op.equals("BEQZ")
-//                        || quadruples.get(i + 1).op.equals("PARA")
-//                        || quadruples.get(i + 1).op.equals("RET")
                 )) {
                     quadruples.get(i + 1).dst = "$t6";
                     quadruples.get(i).dst = "$t6";
                 }
-
-                //        ADD       tmp@25              tmp@29              $t5
-//        DEFINE    d.1                 0                   0
-//        ASS       d.1                 tmp@25
 
                 if (quadruples.get(i + 2).src1.equals(temp)
                         && quadruples.get(i + 1).op.equals("DEFINE")
@@ -128,7 +83,6 @@ public class Optimizer {
                     quadruples.get(i + 2).src1 = "$t6";
                     quadruples.get(i).dst = "$t6";
                 }
-
             }
         }
     }

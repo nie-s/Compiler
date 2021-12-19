@@ -51,7 +51,7 @@ public class GrammarAnalyzer {
             PRINT("<CompUnit>");
             out.close();
         } catch (MyException e) {
-            ;
+
         } catch (IOException e) {
             //
         }
@@ -230,7 +230,7 @@ public class GrammarAnalyzer {
     }
 
     //<FuncFParams> ::= <FuncFParam> { ',' <FuncFParam> }
-    public int funcFParams() throws MyException {
+    public int funcFParams() {
         int funcFId = idCounter++;
         params.clear();
 
@@ -674,7 +674,7 @@ public class GrammarAnalyzer {
     public void lOrExp_2(int lastcondition, int parent) {
         ArrayList<Integer> list = ast.ast.get(lastcondition);
         int i = 1;
-        int nextLabel = 0;
+        int nextLabel;
         int cnt = ast.ast.get(list.get(0)).size();
 
         if (i == ast.ast.get(lastcondition).size()) {  //如果只有一个或条件
@@ -815,14 +815,19 @@ public class GrammarAnalyzer {
             GETWORD();
             addExpId = addExp(op, false);
             ast.addChild(relExpId, addExpId);
-            if (op.equals("<")) {
-                semanticAnalyzer.lss(idCounter, last, addExpId);
-            } else if (op.equals(">")) {
-                semanticAnalyzer.grt(idCounter, last, addExpId);
-            } else if (op.equals("<=")) {
-                semanticAnalyzer.leq(idCounter, last, addExpId);
-            } else if (op.equals(">=")) {
-                semanticAnalyzer.geq(idCounter, last, addExpId);
+            switch (op) {
+                case "<":
+                    semanticAnalyzer.lss(idCounter, last, addExpId);
+                    break;
+                case ">":
+                    semanticAnalyzer.grt(idCounter, last, addExpId);
+                    break;
+                case "<=":
+                    semanticAnalyzer.leq(idCounter, last, addExpId);
+                    break;
+                case ">=":
+                    semanticAnalyzer.geq(idCounter, last, addExpId);
+                    break;
             }
 
             last = idCounter++;
@@ -882,7 +887,6 @@ public class GrammarAnalyzer {
     // <ConstInitVal> ::= <ConstExp> | '{' [ <ConstInitVal> { ',' <ConstInitVal> } ] '}'
     public int constInitVal(String name, int dimension) {
         int constInitValId = idCounter++;
-//        ArrayList<ArrayList<Integer>> exps = new ArrayList<>();
         int shift = 0;
         int rangex = 0;
         int rangey = 0;

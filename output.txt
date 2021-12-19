@@ -1,0 +1,272 @@
+VOIDTK void
+<FuncType>
+IDENFR move
+LPARENT (
+INTTK int
+IDENFR x
+<FuncFParam>
+COMMA ,
+INTTK int
+IDENFR y
+<FuncFParam>
+<FuncFParams>
+RPARENT )
+LBRACE {
+PRINTFTK printf
+LPARENT (
+STRCON "%d:%d\n"
+COMMA ,
+IDENFR x
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR y
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+RPARENT )
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<FuncDef>
+VOIDTK void
+<FuncType>
+IDENFR hanoi
+LPARENT (
+INTTK int
+IDENFR n
+<FuncFParam>
+COMMA ,
+INTTK int
+IDENFR one
+<FuncFParam>
+COMMA ,
+INTTK int
+IDENFR two
+<FuncFParam>
+COMMA ,
+INTTK int
+IDENFR three
+<FuncFParam>
+<FuncFParams>
+RPARENT )
+LBRACE {
+IFTK if
+LPARENT (
+IDENFR n
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+EQL ==
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<RelExp>
+<EqExp>
+<LAndExp>
+<LOrExp>
+<Cond>
+RPARENT )
+IDENFR move
+LPARENT (
+IDENFR one
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR three
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<FuncRParams>
+RPARENT )
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+ELSETK else
+LBRACE {
+IDENFR hanoi
+LPARENT (
+IDENFR n
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+MINU -
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR one
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR three
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR two
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<FuncRParams>
+RPARENT )
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR move
+LPARENT (
+IDENFR one
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR three
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<FuncRParams>
+RPARENT )
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+IDENFR hanoi
+LPARENT (
+IDENFR n
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+MINU -
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR two
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR one
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+IDENFR three
+<LVal>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<FuncRParams>
+RPARENT )
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<Stmt>
+<Stmt>
+RBRACE }
+<Block>
+<FuncDef>
+INTTK int
+MAINTK main
+LPARENT (
+RPARENT )
+LBRACE {
+IDENFR hanoi
+LPARENT (
+INTCON 5
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+INTCON 1
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+INTCON 2
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+COMMA ,
+INTCON 3
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+<FuncRParams>
+RPARENT )
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+RETURNTK return
+INTCON 0
+<Number>
+<PrimaryExp>
+<UnaryExp>
+<AddExp>
+<Exp>
+SEMICN ;
+<Stmt>
+RBRACE }
+<Block>
+<MainFuncDef>
+<CompUnit>
+<CompUnit>
