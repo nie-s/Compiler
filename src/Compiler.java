@@ -26,13 +26,10 @@ public class Compiler {
         MipsGenerator mipsGenerator = new MipsGenerator(optimizer.quadruples, optimizer);
 
         mipsGenerator.analyse();
+        optimizer.opMips(mipsGenerator.mips);
         mipsGenerator.output();
-        // move      $t7         $t7
 
-        //addu      $t5         $t7         $t7
-        //move      $t7         $t5
 
-        //SLL       $t5                 0                   2
     }
 
 

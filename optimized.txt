@@ -1,56 +1,90 @@
 LABEL     GLOBAL:                                 
+DEFINE    d.0                 0                   0
+ASS_CON   d.0                 4                   
+D_END                                             
 LABEL     GLOBAL_END:                             
-FUNC_move:                                        
-RECOVER   y.1                 0                   0
-RECOVER   x.1                 0                   0
-WI        x.1                                     
-WS        :                                       
-WI        y.1                                     
-WC        \n                                      
-JR                                                
-F_END:                                            
-FUNC_hanoi:                                        
-RECOVER   three.1             0                   0
-RECOVER   two.1               0                   0
-RECOVER   one.1               0                   0
-RECOVER   n.1                 0                   0
+FUNC_hhh:                                         
+RECOVER   i.1                 0                   0
+MUL       $t6                 i.1                 i.1
+DEFINE    c.1                 0                   0
+ASS       c.1                 $t6                 
+D_END                                             
 LABEL     $Cond_1:                                
-EQ        $t6                 n.1                 1
+EQ        $t6                 i.1                 1
 BEQZ      $t6                 $Cond_3             
 LABEL     $Cond_2:                                
-PARA      one.1               0                   0
-PARA      three.1             0                   0
-CALL      move                2                   
-FUNCRET   tmp@60                                  
+RET       1                                       
+JR                                                
 J         $Cond_4                                 
 LABEL     $Cond_3:                                
-SUBI      tmp@83              n.1                 1
-PARA      tmp@83              0                   0
-PARA      one.1               0                   0
-PARA      three.1             0                   0
-PARA      two.1               0                   0
-CALL      hanoi               4                   
-FUNCRET   tmp@80                                  
-PARA      one.1               0                   0
-PARA      three.1             0                   0
-CALL      move                2                   
-FUNCRET   tmp@113                                 
-SUBI      tmp@134             n.1                 1
-PARA      tmp@134             0                   0
-PARA      two.1               0                   0
-PARA      one.1               0                   0
-PARA      three.1             0                   0
-CALL      hanoi               4                   
-FUNCRET   tmp@131                                 
 LABEL     $Cond_4:                                
+LABEL     $Cond_8:                                
+EQ        $t6                 i.1                 2
+BEQZ      $t6                 $Cond_10            
+LABEL     $Cond_9:                                
+RET       2                                       
+JR                                                
+J         $Cond_11                                
+LABEL     $Cond_10:                               
+LABEL     $Cond_11:                               
+MUL       $t5                 c.1                 c.1
+MOD       $t5                 $t5                 10
+SW        c.1                 0                   $t5
+SUBI      tmp@118             i.1                 1
+PARA      tmp@118             0                   0
+CALL      hhh                 1                   
+FUNCRET   tmp@115                                 
+SUBI      tmp@130             i.1                 2
+PARA      tmp@130             0                   0
+CALL      hhh                 1                   
+FUNCRET   $t5                                     
+ADD       tmp@113             tmp@115             $t5
+RET       tmp@113                                 
 JR                                                
 F_END:                                            
 FUNC_main:                                        
-PARA      5                   0                   0
-PARA      1                   0                   0
-PARA      2                   0                   0
+DEFINE    i.1                 0                   0
+ASS       i.1                 2                   
+D_END                                             
+DEFINE    j.1                 0                   0
+ASS       j.1                 5                   
+D_END                                             
+SW        i.1                 0                   @getInt
+SW        j.1                 0                   @getInt
 PARA      3                   0                   0
-CALL      hanoi               4                   
-FUNCRET   tmp@166                                 
+CALL      hhh                 1                   
+FUNCRET   tmp@178                                 
+PARA      tmp@178             0                   0
+CALL      hhh                 1                   
+FUNCRET   $t5                                     
+SUB       $t5                 41440               $t5
+ADDI      $t5                 $t5                 -10091
+SW        j.1                 0                   $t5
+DEFINE    k.1                 0                   0
+ASS       k.1                 5                   
+D_END                                             
+DEFINE    n.1                 0                   0
+ASS       n.1                 10                  
+D_END                                             
+LABEL     $Cond_15:                               
+LSS       $t5                 n.1                 15625
+NEQZ      $t6                 $t5                 
+BEQZ      $t6                 $Cond_18            
+LABEL     $Cond_17:                               
+ADDI      $t5                 n.1                 1
+SW        n.1                 0                   $t5
+LABEL     $WHILE_22:                              
+LABEL     $Cond_23:                               
+LSS       $t5                 n.1                 15625
+NEQZ      $t6                 $t5                 
+BEQ       $t6                 1                   $Cond_17
+LABEL     $Cond_18:                               
+LABEL     $WHILE_END_22:                          
+WI        i.1                                     
+WS        ,                                       
+WI        j.1                                     
+WS        ,                                       
+WI        k.1                                     
+WC        \n                                      
 EXIT                                              
 F_END:                                            
